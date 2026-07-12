@@ -623,6 +623,32 @@ input, button, select, textarea { font-family: inherit; }
   min-width: 90px;
 }
 
+/* Instruction bubble shown with the floating input so students know
+   how to finish typing (they often don't realise Enter commits). */
+.floating-input-hint {
+  position: absolute;
+  z-index: 40;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: rgba(255,255,255,0.96);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-full);
+  padding: 4px 12px;
+  pointer-events: none;
+  white-space: nowrap;
+  box-shadow: var(--shadow-sm);
+}
+.floating-input-hint kbd {
+  font-family: inherit;
+  font-weight: 700;
+  color: var(--accent-deep);
+  background: var(--accent-bg);
+  border: 1px solid var(--accent-light);
+  border-radius: 4px;
+  padding: 1px 6px;
+}
+
 /* Split-units popover */
 .split-popover {
   position: absolute;
@@ -2530,15 +2556,16 @@ function buildHatchPath(x, y, w, h) {
 
 function renderLabelElement(element) {
   var group = makeNode('g', { 'data-id': element.id, 'data-type': 'label' });
+  var size = element.size || 17;
   var textNode = makeText(element.x, element.y, element.text, {
-    size: 17,
+    size: size,
     bold: true,
     color: element.text.indexOf('?') !== -1 ? '#E64A19' : '#1A1A1A'
   });
   // Invisible hit-pad behind the text so it's easy to click/erase
   var pad = makeNode('rect', {
-    x: element.x - 6, y: element.y - 18,
-    width: Math.max(40, element.text.length * 10 + 12), height: 26,
+    x: element.x - 6, y: element.y - size - 1,
+    width: Math.max(40, element.text.length * size * 0.6 + 12), height: size + 9,
     fill: 'transparent'
   });
   group.appendChild(pad);
@@ -2755,11 +2782,155 @@ function renderSelection() {
     fill: 'none', stroke: '#66BB6A', 'stroke-width': 1.6,
     'stroke-dasharray': '5 4', rx: 6, 'pointer-events': 'none'
   }));
+
+  var handles = resizeHandlesFor(element);
+  for (var i = 0; i < handles.length; i++) {
+    var handle = handles[i];
+    selectionLayer.appendChild(makeNode('rect', {
+      x: handle.x - HANDLE_HALF, y: handle.y - HANDLE_HALF,
+      width: HANDLE_HALF * 2, height: HANDLE_HALF * 2,
+      fill: '#FFFFFF', stroke: '#66BB6A', 'stroke-width': 1.8,
+      rx: 2.5, 'data-handle': handle.name,
+      style: 'cursor:' + handle.cursor
+    }));
+  }
+}
+
+/* ── Resize handles ──────────────────────────────────────────────────
+   Every selected element grows grab-handles: bars get the classic 8
+   box handles, braces & arrows get one handle per endpoint, pen
+   strokes get 4 corner scale handles, labels get one corner handle
+   that scales the font size. Dividers span the full width, so they
+   only move (no handles). */
+
+var HANDLE_HALF = 5.5;        // half-size of a handle square, viewBox units
+var MIN_BAR_HEIGHT = 16;
+var MIN_SPAN = 30;            // smallest brace span, matches draw minimum
+
+function resizeHandlesFor(element) {
+  if (element.type === 'bar') {
+    var x1 = element.x, y1 = element.y, x2 = element.x + element.w, y2 = element.y + element.h;
+    var midX = (x1 + x2) / 2, midY = (y1 + y2) / 2;
+    return [
+      { name: 'nw', x: x1, y: y1, cursor: 'nwse-resize' },
+      { name: 'n',  x: midX, y: y1, cursor: 'ns-resize' },
+      { name: 'ne', x: x2, y: y1, cursor: 'nesw-resize' },
+      { name: 'e',  x: x2, y: midY, cursor: 'ew-resize' },
+      { name: 'se', x: x2, y: y2, cursor: 'nwse-resize' },
+      { name: 's',  x: midX, y: y2, cursor: 'ns-resize' },
+      { name: 'sw', x: x1, y: y2, cursor: 'nesw-resize' },
+      { name: 'w',  x: x1, y: midY, cursor: 'ew-resize' }
+    ];
+  }
+  if (element.type === 'label') {
+    var box = elementBounds(element);
+    return [{ name: 'se', x: box.x + box.w, y: box.y + box.h, cursor: 'nwse-resize' }];
+  }
+  if (element.type === 'brace') {
+    if (element.vertical) {
+      return [
+        { name: 'start', x: element.x + 6, y: element.y1, cursor: 'ns-resize' },
+        { name: 'end',   x: element.x + 6, y: element.y2, cursor: 'ns-resize' }
+      ];
+    }
+    return [
+      { name: 'start', x: element.x1, y: element.y, cursor: 'ew-resize' },
+      { name: 'end',   x: element.x2, y: element.y, cursor: 'ew-resize' }
+    ];
+  }
+  if (element.type === 'arrow') {
+    return [
+      { name: 'start', x: element.x1, y: element.y1, cursor: 'move' },
+      { name: 'end',   x: element.x2, y: element.y2, cursor: 'move' }
+    ];
+  }
+  if (element.type === 'pen') {
+    var penBox = elementBounds(element);
+    return [
+      { name: 'nw', x: penBox.x, y: penBox.y, cursor: 'nwse-resize' },
+      { name: 'ne', x: penBox.x + penBox.w, y: penBox.y, cursor: 'nesw-resize' },
+      { name: 'se', x: penBox.x + penBox.w, y: penBox.y + penBox.h, cursor: 'nwse-resize' },
+      { name: 'sw', x: penBox.x, y: penBox.y + penBox.h, cursor: 'nesw-resize' }
+    ];
+  }
+  return [];   // divider: full-width, nothing to resize
+}
+
+function clampSpanEnd(moving, fixed, minSpan) {
+  // Keep the dragged end at least minSpan away from the fixed end
+  if (Math.abs(moving - fixed) < minSpan) {
+    return moving >= fixed ? fixed + minSpan : fixed - minSpan;
+  }
+  return moving;
+}
+
+function applyResize(element, original, handleName, point) {
+  var px = snap(point.x), py = snap(point.y);
+
+  if (element.type === 'bar') {
+    var bx1 = original.x, by1 = original.y;
+    var bx2 = original.x + original.w, by2 = original.y + original.h;
+    if (handleName.indexOf('w') !== -1) { bx1 = Math.min(px, bx2 - MIN_BAR_WIDTH); }
+    if (handleName.indexOf('e') !== -1) { bx2 = Math.max(px, bx1 + MIN_BAR_WIDTH); }
+    if (handleName.indexOf('n') !== -1) { by1 = Math.min(py, by2 - MIN_BAR_HEIGHT); }
+    if (handleName.indexOf('s') !== -1) { by2 = Math.max(py, by1 + MIN_BAR_HEIGHT); }
+    element.x = bx1; element.y = by1;
+    element.w = bx2 - bx1; element.h = by2 - by1;
+
+  } else if (element.type === 'label') {
+    // Drag the corner handle to grow/shrink the text
+    var originalBox = elementBounds(original);
+    var scale = (point.x - originalBox.x) / Math.max(1, originalBox.w);
+    var newSize = Math.round((original.size || 17) * scale);
+    element.size = Math.max(10, Math.min(64, newSize));
+
+  } else if (element.type === 'brace') {
+    if (element.vertical) {
+      if (handleName === 'start') { element.y1 = clampSpanEnd(py, original.y2, MIN_SPAN); }
+      else { element.y2 = clampSpanEnd(py, original.y1, MIN_SPAN); }
+    } else {
+      if (handleName === 'start') { element.x1 = clampSpanEnd(px, original.x2, MIN_SPAN); }
+      else { element.x2 = clampSpanEnd(px, original.x1, MIN_SPAN); }
+    }
+
+  } else if (element.type === 'arrow') {
+    // Endpoints stay unsnapped, same as when the arrow was drawn
+    if (handleName === 'start') { element.x1 = point.x; element.y1 = point.y; }
+    else { element.x2 = point.x; element.y2 = point.y; }
+
+  } else if (element.type === 'pen') {
+    // Scale all points about the corner opposite the dragged handle
+    var minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    for (var p = 0; p < original.points.length; p++) {
+      var pt = original.points[p];
+      if (pt.x < minX) { minX = pt.x; }
+      if (pt.y < minY) { minY = pt.y; }
+      if (pt.x > maxX) { maxX = pt.x; }
+      if (pt.y > maxY) { maxY = pt.y; }
+    }
+    var anchorX = handleName.indexOf('w') !== -1 ? maxX : minX;
+    var anchorY = handleName.indexOf('n') !== -1 ? maxY : minY;
+    var movingX = handleName.indexOf('w') !== -1 ? minX : maxX;
+    var movingY = handleName.indexOf('n') !== -1 ? minY : maxY;
+    var sx = (point.x - anchorX) / ((movingX - anchorX) || 1);
+    var sy = (point.y - anchorY) / ((movingY - anchorY) || 1);
+    sx = Math.max(0.05, Math.min(20, sx));
+    sy = Math.max(0.05, Math.min(20, sy));
+    element.points = original.points.map(function (op) {
+      return {
+        x: Math.round((anchorX + (op.x - anchorX) * sx) * 10) / 10,
+        y: Math.round((anchorY + (op.y - anchorY) * sy) * 10) / 10
+      };
+    });
+  }
 }
 
 function elementBounds(element) {
   if (element.type === 'bar') { return { x: element.x, y: element.y, w: element.w, h: element.h }; }
-  if (element.type === 'label') { return { x: element.x - 6, y: element.y - 18, w: Math.max(40, element.text.length * 10), h: 26 }; }
+  if (element.type === 'label') {
+    var labelSize = element.size || 17;
+    return { x: element.x - 6, y: element.y - labelSize - 1, w: Math.max(40, element.text.length * labelSize * 0.6), h: labelSize + 9 };
+  }
   if (element.type === 'brace') {
     if (element.vertical) {
       var vTop = Math.min(element.y1, element.y2);
@@ -2886,12 +3057,12 @@ function clearCanvas(skipConfirm) {
 function updateCanvasHint() {
   var hints = {
     bar: 'Click and drag to draw a bar',
-    select: 'Click to select, drag to move · double-click a label to edit · Ctrl+C / Ctrl+V to copy & paste',
+    select: 'Click to select · drag to move · drag a square handle to resize · double-click text to edit',
     split: 'Click a bar to split it into equal units',
     shade: 'Click a unit to shade or unshade it',
-    label: 'Click anywhere to type a label — use "?" for the unknown',
-    brace: 'Drag across for a horizontal brace, or drag DOWN for a vertical one, then type its value',
-    arrow: 'Drag from the giver to the receiver to show a transfer',
+    label: 'Click anywhere, type your label, then press Enter — use "?" for the unknown',
+    brace: 'Drag across (or DOWN for vertical), type its value, then press Enter',
+    arrow: 'Drag from the giver to the receiver, type the amount, then press Enter',
     divider: 'Click where the Before / After line should go',
     pen: 'Draw freely — sketch your whole model by hand if you like; the AI marks whatever you draw',
     eraser: 'Click any element to erase it'
@@ -2930,17 +3101,30 @@ canvasSvg.addEventListener('pointerdown', function (event) {
   } else if (tool === 'arrow') {
     pointerSession = { mode: 'drawArrow', startX: point.x, startY: point.y };
   } else if (tool === 'select') {
-    var hit = hitTest(event.target);
-    if (hit) {
-      appState.selectedId = hit.id;
+    // A resize handle wins over element hit-testing so handles that
+    // overlap the element (or a neighbour) still grab correctly.
+    var handleName = event.target.getAttribute && event.target.getAttribute('data-handle');
+    var selectedElement = appState.selectedId ? findElementById(appState.selectedId) : null;
+    if (handleName && selectedElement) {
       pointerSession = {
-        mode: 'move', element: hit,
-        startX: point.x, startY: point.y,
-        original: JSON.stringify(hit),
-        moved: false
+        mode: 'resize', element: selectedElement,
+        handle: handleName,
+        original: JSON.stringify(selectedElement),
+        resized: false
       };
     } else {
-      appState.selectedId = null;
+      var hit = hitTest(event.target);
+      if (hit) {
+        appState.selectedId = hit.id;
+        pointerSession = {
+          mode: 'move', element: hit,
+          startX: point.x, startY: point.y,
+          original: JSON.stringify(hit),
+          moved: false
+        };
+      } else {
+        appState.selectedId = null;
+      }
     }
     renderSelection();
   } else if (tool === 'eraser') {
@@ -3021,6 +3205,10 @@ canvasSvg.addEventListener('pointermove', function (event) {
     var dy = point.y - pointerSession.startY;
     if (Math.abs(dx) > 2 || Math.abs(dy) > 2) { pointerSession.moved = true; }
     applyMove(pointerSession.element, JSON.parse(pointerSession.original), dx, dy);
+    renderAllElements();
+  } else if (pointerSession.mode === 'resize') {
+    pointerSession.resized = true;
+    applyResize(pointerSession.element, JSON.parse(pointerSession.original), pointerSession.handle, point);
     renderAllElements();
   }
 });
@@ -3123,6 +3311,19 @@ canvasSvg.addEventListener('pointerup', function (event) {
     pushUndoSnapshot();
     var restored = findElementById(pointerSession.element.id);
     Object.assign(restored, JSON.parse(movedElement));
+    renderAllElements();
+  } else if (pointerSession.mode === 'resize' && pointerSession.resized) {
+    // Commit the resize as one undo step: swap the pre-resize element
+    // back in, snapshot, then re-apply the resized version. A full
+    // replacement (not Object.assign) so added keys like label.size
+    // don't leak into the undo snapshot.
+    var resizedElement = JSON.stringify(pointerSession.element);
+    var elementIndex = appState.elements.indexOf(pointerSession.element);
+    if (elementIndex !== -1) {
+      appState.elements[elementIndex] = JSON.parse(pointerSession.original);
+      pushUndoSnapshot();
+      appState.elements[elementIndex] = JSON.parse(resizedElement);
+    }
     renderAllElements();
   }
 
@@ -3238,25 +3439,44 @@ function openFloatingInput(viewX, viewY, initialValue, onCommit) {
   input.className = 'floating-input';
   input.value = initialValue;
   input.placeholder = 'e.g. Ben, $480, ?';
-  input.style.left = Math.max(4, Math.min(pos.left - 45, canvasFrame.clientWidth - 150)) + 'px';
-  input.style.top = Math.max(4, Math.min(pos.top - 18, canvasFrame.clientHeight - 44)) + 'px';
+  var inputLeft = Math.max(4, Math.min(pos.left - 45, canvasFrame.clientWidth - 150));
+  var inputTop = Math.max(4, Math.min(pos.top - 18, canvasFrame.clientHeight - 44));
+  input.style.left = inputLeft + 'px';
+  input.style.top = inputTop + 'px';
   canvasFrame.appendChild(input);
+
+  // Students often don't realise Enter finishes the text — say so.
+  var hint = document.createElement('div');
+  hint.className = 'floating-input-hint';
+  hint.innerHTML = 'Type, then press <kbd>Enter &#8629;</kbd> to add it';
+  var hintTop = inputTop + input.offsetHeight + 6;
+  if (hintTop > canvasFrame.clientHeight - 30) {
+    hintTop = inputTop - 30;               // no room below → show above
+  }
+  hint.style.left = Math.max(4, inputLeft - 20) + 'px';
+  hint.style.top = hintTop + 'px';
+  canvasFrame.appendChild(hint);
+
   input.focus();
   input.select();
 
   var committed = false;
+  function removeWidgets() {
+    if (input.parentNode) { input.parentNode.removeChild(input); }
+    if (hint.parentNode) { hint.parentNode.removeChild(hint); }
+  }
   function commit() {
     if (committed) { return; }
     committed = true;
     var value = input.value;
-    if (input.parentNode) { input.parentNode.removeChild(input); }
+    removeWidgets();
     onCommit(value);
   }
   input.addEventListener('keydown', function (keyEvent) {
     if (keyEvent.key === 'Enter') { commit(); }
     if (keyEvent.key === 'Escape') {
       committed = true;
-      if (input.parentNode) { input.parentNode.removeChild(input); }
+      removeWidgets();
     }
     keyEvent.stopPropagation();
   });
@@ -3299,7 +3519,7 @@ function openSplitPopover(barElement, clientX, clientY) {
 }
 
 function closeFloatingWidgets() {
-  var stale = canvasFrame.querySelectorAll('.floating-input, .split-popover');
+  var stale = canvasFrame.querySelectorAll('.floating-input, .floating-input-hint, .split-popover');
   for (var i = 0; i < stale.length; i++) {
     stale[i].parentNode.removeChild(stale[i]);
   }
