@@ -2989,10 +2989,10 @@ function performUndo() {
 var elementClipboard = null;   // JSON string of the copied element
 var pasteCount = 0;            // resets on each fresh copy
 
-function offsetElementInPlace(element, dx, dy) {
+function offsetElementInPlace(element, dx, dy, exact) {
   // Reuses the exact same per-type geometry rules as applyMove, but
   // against the element's own current position.
-  applyMove(element, JSON.parse(JSON.stringify(element)), dx, dy);
+  applyMove(element, JSON.parse(JSON.stringify(element)), dx, dy, exact);
 }
 
 function clampElementToCanvas(element) {
@@ -3057,7 +3057,7 @@ function clearCanvas(skipConfirm) {
 function updateCanvasHint() {
   var hints = {
     bar: 'Click and drag to draw a bar',
-    select: 'Click to select · drag to move · drag a square handle to resize · double-click text to edit',
+    select: 'Drag to move · handles resize · double-click to edit text · Ctrl+drag duplicates · arrows nudge',
     split: 'Click a bar to split it into equal units',
     shade: 'Click a unit to shade or unshade it',
     label: 'Click anywhere, type your label, then press Enter — use "?" for the unknown',
@@ -3074,9 +3074,71 @@ function updateCanvasHint() {
   }
 }
 
+/* ── Text editing (PowerPoint-style) ─────────────────────────────────
+   Double-click an element (or press F2 / Enter with it selected) to
+   edit its text in place. Double-clicking a bar types text "into" the
+   shape — it drops a label at that spot, PowerPoint-style. An emptied
+   label is deleted, like an emptied PowerPoint text box. */
+
+function textAnchorOf(element) {
+  if (element.type === 'label') { return { x: element.x, y: element.y }; }
+  if (element.type === 'brace') {
+    if (element.vertical) {
+      return { x: element.x + 28, y: (element.y1 + element.y2) / 2 };
+    }
+    var midX = (Math.min(element.x1, element.x2) + Math.max(element.x1, element.x2)) / 2;
+    return { x: midX, y: element.y + (element.below ? 32 : -32) };
+  }
+  if (element.type === 'arrow') {
+    return { x: (element.x1 + element.x2) / 2, y: (element.y1 + element.y2) / 2 - 10 };
+  }
+  return null;
+}
+
+function beginTextEdit(element, atPoint) {
+  if (element.type === 'bar') {
+    var labelX = atPoint ? atPoint.x : element.x + element.w / 2;
+    var labelY = atPoint ? atPoint.y : element.y + element.h / 2;
+    openFloatingInput(labelX, labelY, '', function (value) {
+      if (!value.trim()) { return; }
+      pushUndoSnapshot();
+      appState.elements.push({
+        id: newElementId(), type: 'label',
+        x: snap(labelX), y: snap(labelY + 6), text: value.trim()
+      });
+      renderAllElements();
+    });
+    return true;
+  }
+
+  var anchor = textAnchorOf(element);
+  if (!anchor) { return false; }           // pen / divider carry no text
+  openFloatingInput(anchor.x, anchor.y, element.text || '', function (value) {
+    var trimmed = value.trim();
+    pushUndoSnapshot();
+    if (element.type === 'label' && !trimmed) {
+      // An emptied label disappears, like an empty PowerPoint text box
+      appState.elements = appState.elements.filter(function (el) { return el.id !== element.id; });
+      if (appState.selectedId === element.id) { appState.selectedId = null; }
+    } else if (element.type === 'brace') {
+      element.text = trimmed || '?';
+    } else {
+      element.text = trimmed;              // arrows may go unlabelled
+    }
+    renderAllElements();
+  });
+  return true;
+}
+
 /* ── Pointer interaction ─────────────────────────────────────────── */
 
 var pointerSession = null;   // { mode, startX, startY, ... }
+
+/* Manual double-click detection: the canvas preventDefault()s
+   pointerdown, which can suppress the browser's synthetic dblclick,
+   so we time consecutive clicks on the same element ourselves. */
+var lastSelectClick = { id: null, time: 0 };
+var DOUBLE_CLICK_MS = 450;
 
 canvasSvg.addEventListener('pointerdown', function (event) {
   if (appState.isMarking) { return; }
@@ -3115,14 +3177,28 @@ canvasSvg.addEventListener('pointerdown', function (event) {
     } else {
       var hit = hitTest(event.target);
       if (hit) {
+        // Second click on the same element within the double-click
+        // window opens its text editor (PowerPoint behaviour)
+        if (lastSelectClick.id === hit.id && event.timeStamp - lastSelectClick.time < DOUBLE_CLICK_MS) {
+          lastSelectClick = { id: null, time: 0 };
+          appState.selectedId = hit.id;
+          renderSelection();
+          beginTextEdit(hit, point);
+          return;
+        }
+        lastSelectClick = { id: hit.id, time: event.timeStamp };
         appState.selectedId = hit.id;
         pointerSession = {
           mode: 'move', element: hit,
           startX: point.x, startY: point.y,
           original: JSON.stringify(hit),
-          moved: false
+          moved: false,
+          // Ctrl+drag (or Alt/Cmd+drag) duplicates, PowerPoint-style
+          wantsDuplicate: event.ctrlKey || event.metaKey || event.altKey,
+          duplicated: false
         };
       } else {
+        lastSelectClick = { id: null, time: 0 };
         appState.selectedId = null;
       }
     }
@@ -3203,7 +3279,23 @@ canvasSvg.addEventListener('pointermove', function (event) {
   } else if (pointerSession.mode === 'move') {
     var dx = point.x - pointerSession.startX;
     var dy = point.y - pointerSession.startY;
-    if (Math.abs(dx) > 2 || Math.abs(dy) > 2) { pointerSession.moved = true; }
+    // Shift constrains the drag to one axis, PowerPoint-style
+    if (event.shiftKey) {
+      if (Math.abs(dx) >= Math.abs(dy)) { dy = 0; } else { dx = 0; }
+    }
+    if (!pointerSession.moved && (Math.abs(dx) > 2 || Math.abs(dy) > 2)) {
+      pointerSession.moved = true;
+      if (pointerSession.wantsDuplicate) {
+        // Ctrl+drag: leave a twin behind at the start position. Restore
+        // the dragged element first so the undo snapshot is pristine.
+        applyMove(pointerSession.element, JSON.parse(pointerSession.original), 0, 0);
+        pushUndoSnapshot();
+        var twin = JSON.parse(pointerSession.original);
+        twin.id = newElementId();
+        appState.elements.push(twin);
+        pointerSession.duplicated = true;
+      }
+    }
     applyMove(pointerSession.element, JSON.parse(pointerSession.original), dx, dy);
     renderAllElements();
   } else if (pointerSession.mode === 'resize') {
@@ -3304,14 +3396,20 @@ canvasSvg.addEventListener('pointerup', function (event) {
       });
     }
   } else if (pointerSession.mode === 'move' && pointerSession.moved) {
-    // Commit the move as one undo step
-    var movedElement = JSON.stringify(pointerSession.element);
-    var originalElement = pointerSession.original;
-    applyMove(pointerSession.element, JSON.parse(originalElement), 0, 0);  // restore
-    pushUndoSnapshot();
-    var restored = findElementById(pointerSession.element.id);
-    Object.assign(restored, JSON.parse(movedElement));
-    renderAllElements();
+    if (pointerSession.duplicated) {
+      // Ctrl+drag duplicate: the undo snapshot was taken when the twin
+      // was dropped, so one undo removes the whole duplication.
+      renderAllElements();
+    } else {
+      // Commit the move as one undo step
+      var movedElement = JSON.stringify(pointerSession.element);
+      var originalElement = pointerSession.original;
+      applyMove(pointerSession.element, JSON.parse(originalElement), 0, 0);  // restore
+      pushUndoSnapshot();
+      var restored = findElementById(pointerSession.element.id);
+      Object.assign(restored, JSON.parse(movedElement));
+      renderAllElements();
+    }
   } else if (pointerSession.mode === 'resize' && pointerSession.resized) {
     // Commit the resize as one undo step: swap the pre-resize element
     // back in, snapshot, then re-apply the resized version. A full
@@ -3330,20 +3428,6 @@ canvasSvg.addEventListener('pointerup', function (event) {
   pointerSession = null;
 });
 
-canvasSvg.addEventListener('dblclick', function (event) {
-  // Double-click a label (in select mode) to edit its text
-  if (appState.activeTool !== 'select') { return; }
-  var hit = hitTest(event.target);
-  if (hit && (hit.type === 'label' || hit.type === 'brace' || hit.type === 'arrow')) {
-    var point = svgPoint(event.clientX, event.clientY);
-    openFloatingInput(point.x, point.y, hit.text || '', function (value) {
-      pushUndoSnapshot();
-      hit.text = value.trim() || hit.text;
-      renderAllElements();
-    });
-  }
-});
-
 function hitTest(domTarget) {
   var node = domTarget;
   while (node && node !== canvasSvg) {
@@ -3355,25 +3439,27 @@ function hitTest(domTarget) {
   return null;
 }
 
-function applyMove(element, original, dx, dy) {
+function applyMove(element, original, dx, dy, exact) {
+  // exact: skip grid snapping, used by fine keyboard nudges
+  var fit = exact ? function (v) { return v; } : snap;
   if (element.type === 'bar' || element.type === 'label') {
-    element.x = snap(original.x + dx);
-    element.y = snap(original.y + dy);
+    element.x = fit(original.x + dx);
+    element.y = fit(original.y + dy);
   } else if (element.type === 'brace') {
     if (element.vertical) {
-      element.x = snap(original.x + dx);
-      element.y1 = snap(original.y1 + dy);
-      element.y2 = snap(original.y2 + dy);
+      element.x = fit(original.x + dx);
+      element.y1 = fit(original.y1 + dy);
+      element.y2 = fit(original.y2 + dy);
     } else {
-      element.x1 = snap(original.x1 + dx);
-      element.x2 = snap(original.x2 + dx);
-      element.y = snap(original.y + dy);
+      element.x1 = fit(original.x1 + dx);
+      element.x2 = fit(original.x2 + dx);
+      element.y = fit(original.y + dy);
     }
   } else if (element.type === 'arrow') {
     element.x1 = original.x1 + dx; element.y1 = original.y1 + dy;
     element.x2 = original.x2 + dx; element.y2 = original.y2 + dy;
   } else if (element.type === 'divider') {
-    element.y = snap(original.y + dy);
+    element.y = fit(original.y + dy);
   } else if (element.type === 'pen') {
     element.points = original.points.map(function (pt) {
       return { x: pt.x + dx, y: pt.y + dy };
@@ -4223,6 +4309,19 @@ revealBtn.addEventListener('click', toggleModelAnswer);
 
 var TOOL_SHORTCUTS = { v: 'select', b: 'bar', s: 'split', h: 'shade', t: 'label', c: 'brace', a: 'arrow', d: 'divider', p: 'pen', e: 'eraser' };
 
+var NUDGE_KEYS = {
+  ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1]
+};
+
+/* Successive nudges of the same element within a second collapse into
+   one undo step, so Ctrl+Z undoes the whole nudge burst at once. */
+var lastNudge = { id: null, time: 0 };
+function maybeSnapshotForNudge(id) {
+  var now = Date.now();
+  if (lastNudge.id !== id || now - lastNudge.time > 1000) { pushUndoSnapshot(); }
+  lastNudge = { id: id, time: now };
+}
+
 document.addEventListener('keydown', function (event) {
   if (event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA') { return; }
 
@@ -4260,6 +4359,31 @@ document.addEventListener('keydown', function (event) {
     appState.elements = appState.elements.filter(function (el) { return el.id !== appState.selectedId; });
     appState.selectedId = null;
     renderAllElements();
+    return;
+  }
+  if (event.key === 'Escape' && appState.selectedId) {
+    appState.selectedId = null;
+    renderSelection();
+    return;
+  }
+  if ((event.key === 'F2' || event.key === 'Enter') && appState.selectedId) {
+    // PowerPoint: F2 / Enter edits the selected shape's text
+    event.preventDefault();
+    var editTarget = findElementById(appState.selectedId);
+    if (editTarget) { beginTextEdit(editTarget, null); }
+    return;
+  }
+  if (NUDGE_KEYS[event.key] && appState.selectedId) {
+    // Arrow keys nudge one grid step; Ctrl+arrow nudges 1px (PowerPoint)
+    event.preventDefault();
+    var nudgeTarget = findElementById(appState.selectedId);
+    if (nudgeTarget) {
+      var fine = event.ctrlKey || event.metaKey;
+      var stepSize = fine ? 1 : GRID_SNAP;
+      maybeSnapshotForNudge(nudgeTarget.id);
+      offsetElementInPlace(nudgeTarget, NUDGE_KEYS[event.key][0] * stepSize, NUDGE_KEYS[event.key][1] * stepSize, fine);
+      renderAllElements();
+    }
     return;
   }
   var tool = TOOL_SHORTCUTS[event.key.toLowerCase()];
