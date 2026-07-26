@@ -1584,6 +1584,11 @@ input, button, select, textarea { font-family: inherit; }
         <span class="tool-label">Divider</span>
       </button>
 
+      <button class="tool-btn" data-tool="dotted" type="button" title="Dotted equal line — drag between two parts that are equal (G)">
+        <svg viewBox="0 0 24 24"><path d="M3 9h18M3 15h18" stroke-dasharray="1.5 3.5" stroke-linecap="round"/></svg>
+        <span class="tool-label">Equal</span>
+      </button>
+
       <button class="tool-btn" data-tool="pen" type="button" title="Freehand pen — sketch anything by hand (P)">
         <svg viewBox="0 0 24 24"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg>
         <span class="tool-label">Pen</span>
@@ -2422,6 +2427,7 @@ function findConcept(conceptId) {
      brace   { id, type, x1, x2, y, text, below }
      arrow   { id, type, x1, y1, x2, y2, text }
      divider { id, type, y }
+     dotted  { id, type, x1, y1, x2, y2, text }   equality guide line
    Coordinates live in the 900 × 460 SVG viewBox and snap to an 8px grid.
    ════════════════════════════════════════════════════════════════════ */
 
@@ -2753,6 +2759,44 @@ function renderDividerElement(element) {
   return group;
 }
 
+/* ── Dotted equality line ────────────────────────────────────────────
+   The textbook way to say "these two parts are the same": a dotted
+   guide line between them, carrying a small "=" mark at its middle.
+   The mark is editable text, so it can also read "same", "480", or be
+   emptied out for a plain dotted guide line.                        */
+
+function renderDottedElement(element) {
+  var group = makeNode('g', { 'data-id': element.id, 'data-type': 'dotted' });
+
+  group.appendChild(makeNode('line', {
+    x1: element.x1, y1: element.y1, x2: element.x2, y2: element.y2,
+    stroke: '#8A8A8A', 'stroke-width': 2.2,
+    'stroke-dasharray': '1 6', 'stroke-linecap': 'round'
+  }));
+
+  if (element.text) {
+    // A white badge behind the mark stops the dots running through it
+    var midX = (element.x1 + element.x2) / 2;
+    var midY = (element.y1 + element.y2) / 2;
+    var badgeW = Math.max(20, element.text.length * 10 + 10);
+    group.appendChild(makeNode('rect', {
+      x: midX - badgeW / 2, y: midY - 11,
+      width: badgeW, height: 22, rx: 5,
+      fill: '#FFFFFF', stroke: '#D8D8D8', 'stroke-width': 1
+    }));
+    group.appendChild(makeText(midX, midY, element.text, {
+      size: 16, bold: true, anchor: 'middle', baseline: 'middle', color: '#37474F'
+    }));
+  }
+
+  // Fat invisible twin so a 2px dotted line is easy to grab and erase
+  group.appendChild(makeNode('line', {
+    x1: element.x1, y1: element.y1, x2: element.x2, y2: element.y2,
+    stroke: 'transparent', 'stroke-width': 16
+  }));
+  return group;
+}
+
 function renderAllElements() {
   while (elementsLayer.firstChild) { elementsLayer.removeChild(elementsLayer.firstChild); }
   for (var i = 0; i < appState.elements.length; i++) {
@@ -2763,6 +2807,7 @@ function renderAllElements() {
     else if (element.type === 'brace') { node = renderBraceElement(element); }
     else if (element.type === 'arrow') { node = renderArrowElement(element); }
     else if (element.type === 'divider') { node = renderDividerElement(element); }
+    else if (element.type === 'dotted') { node = renderDottedElement(element); }
     else if (element.type === 'pen') { node = renderPenElement(element); }
     if (node) { elementsLayer.appendChild(node); }
   }
@@ -2838,7 +2883,7 @@ function resizeHandlesFor(element) {
       { name: 'end',   x: element.x2, y: element.y, cursor: 'ew-resize' }
     ];
   }
-  if (element.type === 'arrow') {
+  if (element.type === 'arrow' || element.type === 'dotted') {
     return [
       { name: 'start', x: element.x1, y: element.y1, cursor: 'move' },
       { name: 'end',   x: element.x2, y: element.y2, cursor: 'move' }
@@ -2898,6 +2943,20 @@ function applyResize(element, original, handleName, point) {
     if (handleName === 'start') { element.x1 = point.x; element.y1 = point.y; }
     else { element.x2 = point.x; element.y2 = point.y; }
 
+  } else if (element.type === 'dotted') {
+    /* Endpoints snap to the grid, and a line that was drawn straight
+       stays straight — an equality guide is only useful if it keeps
+       lining the two parts up exactly. */
+    var wasVertical = original.x1 === original.x2;
+    var wasHorizontal = original.y1 === original.y2;
+    if (handleName === 'start') {
+      element.x1 = wasVertical ? original.x2 : px;
+      element.y1 = wasHorizontal ? original.y2 : py;
+    } else {
+      element.x2 = wasVertical ? original.x1 : px;
+      element.y2 = wasHorizontal ? original.y1 : py;
+    }
+
   } else if (element.type === 'pen') {
     // Scale all points about the corner opposite the dragged handle
     var minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
@@ -2942,6 +3001,14 @@ function elementBounds(element) {
   if (element.type === 'arrow') {
     var ax = Math.min(element.x1, element.x2), ay = Math.min(element.y1, element.y2);
     return { x: ax - 4, y: ay - 4, w: Math.abs(element.x2 - element.x1) + 8, h: Math.abs(element.y2 - element.y1) + 8 };
+  }
+  if (element.type === 'dotted') {
+    // Pad to at least the "=" badge so the selection box never sits
+    // inside the mark on a perfectly straight line
+    var dx = Math.min(element.x1, element.x2), dy = Math.min(element.y1, element.y2);
+    var dw = Math.abs(element.x2 - element.x1), dh = Math.abs(element.y2 - element.y1);
+    var padX = Math.max(4, (24 - dw) / 2), padY = Math.max(4, (24 - dh) / 2);
+    return { x: dx - padX, y: dy - padY, w: dw + padX * 2, h: dh + padY * 2 };
   }
   if (element.type === 'divider') { return { x: 10, y: element.y - 9, w: 880, h: 18 }; }
   if (element.type === 'pen') {
@@ -3064,6 +3131,7 @@ function updateCanvasHint() {
     brace: 'Drag across (or DOWN for vertical), type its value, then press Enter',
     arrow: 'Drag from the giver to the receiver, type the amount, then press Enter',
     divider: 'Click where the Before / After line should go',
+    dotted: 'Drag a dotted line between two parts that are equal — double-click it to change the “=” mark',
     pen: 'Draw freely — sketch your whole model by hand if you like; the AI marks whatever you draw',
     eraser: 'Click any element to erase it'
   };
@@ -3089,7 +3157,7 @@ function textAnchorOf(element) {
     var midX = (Math.min(element.x1, element.x2) + Math.max(element.x1, element.x2)) / 2;
     return { x: midX, y: element.y + (element.below ? 32 : -32) };
   }
-  if (element.type === 'arrow') {
+  if (element.type === 'arrow' || element.type === 'dotted') {
     return { x: (element.x1 + element.x2) / 2, y: (element.y1 + element.y2) / 2 - 10 };
   }
   return null;
@@ -3123,7 +3191,7 @@ function beginTextEdit(element, atPoint) {
     } else if (element.type === 'brace') {
       element.text = trimmed || '?';
     } else {
-      element.text = trimmed;              // arrows may go unlabelled
+      element.text = trimmed;              // arrows & dotted lines may go unmarked
     }
     renderAllElements();
   });
@@ -3162,6 +3230,8 @@ canvasSvg.addEventListener('pointerdown', function (event) {
     pointerSession = { mode: 'drawBrace', startX: snap(point.x), startY: snap(point.y) };
   } else if (tool === 'arrow') {
     pointerSession = { mode: 'drawArrow', startX: point.x, startY: point.y };
+  } else if (tool === 'dotted') {
+    pointerSession = { mode: 'drawDotted', startX: snap(point.x), startY: snap(point.y) };
   } else if (tool === 'select') {
     // A resize handle wins over element hit-testing so handles that
     // overlap the element (or a neighbour) still grab correctly.
@@ -3276,6 +3346,9 @@ canvasSvg.addEventListener('pointermove', function (event) {
     }
   } else if (pointerSession.mode === 'drawArrow') {
     drawPreviewArrow(pointerSession.startX, pointerSession.startY, point.x, point.y);
+  } else if (pointerSession.mode === 'drawDotted') {
+    var dottedEnd = resolveDottedEnd(pointerSession.startX, pointerSession.startY, point);
+    drawPreviewDotted(pointerSession.startX, pointerSession.startY, dottedEnd.x, dottedEnd.y);
   } else if (pointerSession.mode === 'move') {
     var dx = point.x - pointerSession.startX;
     var dy = point.y - pointerSession.startY;
@@ -3395,6 +3468,22 @@ canvasSvg.addEventListener('pointerup', function (event) {
         renderAllElements();
       });
     }
+  } else if (pointerSession.mode === 'drawDotted') {
+    var dotEnd = resolveDottedEnd(pointerSession.startX, pointerSession.startY, point);
+    var dotSpan = Math.sqrt(
+      Math.pow(dotEnd.x - pointerSession.startX, 2) +
+      Math.pow(dotEnd.y - pointerSession.startY, 2)
+    );
+    if (dotSpan >= 24) {
+      pushUndoSnapshot();
+      appState.elements.push({
+        id: newElementId(), type: 'dotted',
+        x1: pointerSession.startX, y1: pointerSession.startY,
+        x2: dotEnd.x, y2: dotEnd.y,
+        text: '='            // the default mark; double-click to change it
+      });
+      renderAllElements();
+    }
   } else if (pointerSession.mode === 'move' && pointerSession.moved) {
     if (pointerSession.duplicated) {
       // Ctrl+drag duplicate: the undo snapshot was taken when the twin
@@ -3458,6 +3547,10 @@ function applyMove(element, original, dx, dy, exact) {
   } else if (element.type === 'arrow') {
     element.x1 = original.x1 + dx; element.y1 = original.y1 + dy;
     element.x2 = original.x2 + dx; element.y2 = original.y2 + dy;
+  } else if (element.type === 'dotted') {
+    // Snapped, so a guide line dragged sideways stays aligned to bars
+    element.x1 = fit(original.x1 + dx); element.y1 = fit(original.y1 + dy);
+    element.x2 = fit(original.x2 + dx); element.y2 = fit(original.y2 + dy);
   } else if (element.type === 'divider') {
     element.y = fit(original.y + dy);
   } else if (element.type === 'pen') {
@@ -3494,6 +3587,26 @@ function drawPreviewLine(x1, y1, x2, y2) {
   previewLayer.appendChild(makeNode('line', {
     x1: x1, y1: y1, x2: x2, y2: y2,
     stroke: '#66BB6A', 'stroke-width': 2.2, 'stroke-dasharray': '5 4'
+  }));
+}
+/* A drag that is nearly straight snaps to that axis — an equality line
+   is only convincing if it lines the two parts up exactly — while a
+   deliberately slanted drag stays slanted, for parts sitting far apart
+   on different rows. */
+function resolveDottedEnd(startX, startY, point) {
+  var endX = snap(point.x), endY = snap(point.y);
+  var offX = Math.abs(endX - startX), offY = Math.abs(endY - startY);
+  if (offY <= Math.max(16, offX * 0.25)) { endY = startY; }
+  else if (offX <= Math.max(16, offY * 0.25)) { endX = startX; }
+  return { x: endX, y: endY };
+}
+
+function drawPreviewDotted(x1, y1, x2, y2) {
+  clearPreview();
+  previewLayer.appendChild(makeNode('line', {
+    x1: x1, y1: y1, x2: x2, y2: y2,
+    stroke: '#8A8A8A', 'stroke-width': 2.2,
+    'stroke-dasharray': '1 6', 'stroke-linecap': 'round'
   }));
 }
 function drawPreviewArrow(x1, y1, x2, y2) {
@@ -3689,6 +3802,13 @@ function renderReferenceModel(shapes) {
       }));
     }
 
+    else if (shape.kind === 'dotted') {
+      referenceSvg.appendChild(renderDottedElement({
+        id: 'ref', x1: shape.x1, y1: shape.y1, x2: shape.x2, y2: shape.y2,
+        text: shape.text === undefined ? '=' : shape.text
+      }));
+    }
+
     else if (shape.kind === 'divider') {
       referenceSvg.appendChild(makeNode('line', {
         x1: 10, y1: shape.y, x2: 850, y2: shape.y,
@@ -3777,6 +3897,14 @@ function describeStudentElements() {
     } else if (el.type === 'arrow') {
       lines.push('- ARROW from (' + Math.round(el.x1) + ',' + Math.round(el.y1) + ') to (' +
         Math.round(el.x2) + ',' + Math.round(el.y2) + ')' + (el.text ? ', labelled "' + el.text + '"' : ''));
+    } else if (el.type === 'dotted') {
+      var dotOrientation = el.x1 === el.x2 ? 'vertical' :
+                           (el.y1 === el.y2 ? 'horizontal' : 'slanted');
+      lines.push('- DOTTED EQUALITY LINE (' + dotOrientation + ') from (' + Math.round(el.x1) + ',' +
+        Math.round(el.y1) + ') to (' + Math.round(el.x2) + ',' + Math.round(el.y2) + ')' +
+        (el.text ? ', marked "' + el.text + '"' : '') +
+        '. The student is using it to show that the two parts it joins are EQUAL' +
+        (dotOrientation === 'vertical' ? ' / line up at the same length' : '') + '.');
     } else if (el.type === 'divider') {
       lines.push('- BEFORE/AFTER DIVIDER line at y=' + el.y);
     } else if (el.type === 'pen') {
@@ -4307,7 +4435,7 @@ revealBtn.addEventListener('click', toggleModelAnswer);
 
 /* ── Keyboard shortcuts ──────────────────────────────────────────── */
 
-var TOOL_SHORTCUTS = { v: 'select', b: 'bar', s: 'split', h: 'shade', t: 'label', c: 'brace', a: 'arrow', d: 'divider', p: 'pen', e: 'eraser' };
+var TOOL_SHORTCUTS = { v: 'select', b: 'bar', s: 'split', h: 'shade', t: 'label', c: 'brace', a: 'arrow', d: 'divider', g: 'dotted', '=': 'dotted', p: 'pen', e: 'eraser' };
 
 var NUDGE_KEYS = {
   ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1]
