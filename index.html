@@ -997,6 +997,60 @@ input, button, select, textarea { font-family: inherit; }
 }
 .composer-card.open { display: block; animation: fadeInUp 0.3s ease both; }
 
+/* ── P3 exam-question filter bar (visible only in "P3 Questions") ── */
+.p3-filter-card {
+  display: none;
+  max-width: 860px;
+  margin: 0 auto var(--space-md);
+  background: var(--bg-primary, #FFFFFF);
+  border: 1.5px dashed var(--accent, #66BB6A);
+  border-radius: var(--radius-lg, 16px);
+  padding: var(--space-sm, 12px) var(--space-lg, 24px);
+}
+.p3-filter-card.open { display: block; animation: fadeInUp 0.3s ease both; }
+.p3-filter-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 6px 0;
+}
+.p3-filter-label {
+  font-size: var(--font-size-sm, 0.85rem);
+  font-weight: 700;
+  color: var(--text-secondary);
+  min-width: 58px;
+}
+.p3-filter-chips { display: inline-flex; gap: 7px; flex-wrap: wrap; }
+.p3-filter-chip {
+  padding: 5px 14px;
+  border-radius: var(--radius-full, 999px);
+  border: 1.5px solid var(--border-medium, #D6D6D6);
+  background: var(--bg-primary, #FFFFFF);
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm, 0.82rem);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-base, 0.2s);
+  user-select: none;
+}
+.p3-filter-chip:hover {
+  border-color: var(--accent-base, #66BB6A);
+  background: var(--accent-bg, #F1F8F1);
+  color: var(--text-primary);
+}
+.p3-filter-chip.active {
+  background: var(--accent-light, #C8E6C9);
+  border-color: var(--accent-dark, #2E7D32);
+  color: var(--text-primary);
+}
+.p3-filter-count {
+  display: block;
+  margin-top: 4px;
+  font-size: var(--font-size-sm, 0.8rem);
+  color: var(--text-secondary);
+}
+
 .composer-head { margin-bottom: var(--space-sm); }
 .composer-title {
   display: block;
@@ -1486,6 +1540,19 @@ input, button, select, textarea { font-family: inherit; }
   <div class="concept-picker reveal reveal-4" id="conceptPicker" role="tablist" aria-label="Choose a bar model concept">
     <!-- chips injected by JS -->
   </div>
+
+  <!-- ════════════════════ P3 QUESTION FILTER ════════════════════ -->
+  <section class="p3-filter-card" id="p3FilterCard" aria-label="Filter P3 exam questions">
+    <div class="p3-filter-row">
+      <span class="p3-filter-label">Paper</span>
+      <div class="p3-filter-chips" id="p3PaperChips"></div>
+    </div>
+    <div class="p3-filter-row">
+      <span class="p3-filter-label">Section</span>
+      <div class="p3-filter-chips" id="p3SectionChips"></div>
+    </div>
+    <span class="p3-filter-count" id="p3FilterCount"></span>
+  </section>
 
   <!-- ════════════════════ SCENARIO CARD ════════════════════ -->
   <section class="scenario-card reveal reveal-5" aria-live="polite">
@@ -2387,13 +2454,19 @@ function generateFraction() {
   };
 }
 
-/* ── P3 Questions: ACS (Junior) 2025 End-of-Year Exam, Section C ──
-   The five problem sums (Q26–30) from the last segment of the paper.
-   Unlike the template concepts these are FIXED questions, so the
-   generator deals them out of a shuffled deck instead of randomising
-   names and numbers. */
+/* ── P3 Questions: real P3 exam papers ────────────────────────────
+   Fixed questions transcribed from actual Primary 3 exam papers,
+   each tagged with its paper, section and question number so the
+   student can filter what to practise. Unlike the template concepts
+   these are FIXED questions, so the generator deals them out of a
+   shuffled deck instead of randomising names and numbers.
+
+   Papers currently loaded:
+   - ACS (Junior) 2025 End-of-Year — Section C problem sums (Q26–30)
+   - Ai Tong 2025 End-of-Year — Section C problem sums (Q22–26) */
 var P3_QUESTIONS = [
   {
+    exam: { paper: 'ACS (Junior) 2025', section: 'C', qnum: 26, marks: 3 },
     text: 'There were 2560 visitors in Bird Paradise. There were 1756 adults and the rest of the visitors were children. Among the children, there were 358 boys. How many girls were there in Bird Paradise?',
     answerStatement: 'There were 446 girls in Bird Paradise.',
     expectedModel:
@@ -2422,6 +2495,7 @@ var P3_QUESTIONS = [
     ]
   },
   {
+    exam: { paper: 'ACS (Junior) 2025', section: 'C', qnum: 27, marks: 3 },
     text: 'Mr Samad bought some bags of flour for his restaurant. He used 16 bags of flour each day from Monday to Friday and 22 bags of flour each day on Saturday and Sunday. He had 120 bags of flour left. How many bags of flour did he buy at first?',
     answerStatement: 'Mr Samad bought 244 bags of flour at first.',
     expectedModel:
@@ -2451,6 +2525,7 @@ var P3_QUESTIONS = [
     ]
   },
   {
+    exam: { paper: 'ACS (Junior) 2025', section: 'C', qnum: 28, marks: 3 },
     text: '4 whistles and 5 caps cost $55. 4 whistles and 2 caps cost $34. What is the cost of 4 caps?',
     answerStatement: '4 caps cost $28.',
     expectedModel:
@@ -2481,6 +2556,7 @@ var P3_QUESTIONS = [
     ]
   },
   {
+    exam: { paper: 'ACS (Junior) 2025', section: 'C', qnum: 29, marks: 3 },
     text: 'Ali, Charles and Sam weigh a total of 140 kg. Ali weighs 3 times as heavy as Charles. Sam is 15 kg lighter than Charles. How much does Charles weigh?',
     answerStatement: 'Charles weighs 31 kg.',
     expectedModel:
@@ -2509,6 +2585,7 @@ var P3_QUESTIONS = [
     ]
   },
   {
+    exam: { paper: 'ACS (Junior) 2025', section: 'C', qnum: 30, marks: 3 },
     text: 'Rosie and Tricia had an equal number of cookies at first. After Rosie bought another 13 cookies and Tricia gave away 5 cookies to her brother, Rosie had three times as many cookies as Tricia. How many cookies did each of them have at first?',
     answerStatement: 'Each of them had 14 cookies at first.',
     expectedModel:
@@ -2530,16 +2607,138 @@ var P3_QUESTIONS = [
       refBraceH({ x1: 250, x2: 490, y: 181, text: 'gap = 13 + 5 = 18', below: true }),
       refText({ x: 130, y: 262, text: '2 units = 18  →  1 unit = 9  →  at first: 9 + 5 = 14 each', size: 15, bold: true, color: '#2E7D32' })
     ]
+  },
+  {
+    exam: { paper: 'Ai Tong 2025', section: 'C', qnum: 22, marks: 3 },
+    text: 'Study the map: Anna’s House is 638 m from the Library, the Library is 1068 m from the School, and Anna’s House is 983 m from the School. (a) What is the distance from the library to the school in km and m? (b) Anna walked from the school to the library. Then she walked to her house from the library. What was the total distance Anna walked?',
+    answerStatement: '(a) 1 km 68 m. (b) Anna walked 1706 m in total.',
+    expectedModel:
+      'Part (a): 1068 m converted to 1 km 68 m (1000 m = 1 km). ' +
+      'Part (b): Anna’s route is School → Library → House, so the two distances to add are 1068 m and 638 m, giving 1706 m. ' +
+      'A part–whole bar with a "1068" part and a "638" part braced with "?" is a correct model for (b). ' +
+      'Using 983 m (the direct House–School path) in part (b) is a marking error.',
+    workedSteps: [
+      '(a) 1068 m = 1 km 68 m',
+      '(b) School to Library = 1068 m, Library to House = 638 m',
+      '(b) 1068 + 638 = 1706 m'
+    ],
+    reference: [
+      refText({ x: 118, y: 128, text: 'Walked', anchor: 'end', bold: true }),
+      refBar({ x: 130, y: 105, units: 1, unitWidth: 390, color: '#BBDEFB' }),
+      refBar({ x: 520, y: 105, units: 1, unitWidth: 233 }),
+      refText({ x: 325, y: 132, text: 'School → Library 1068 m', size: 13, anchor: 'middle' }),
+      refText({ x: 636, y: 132, text: 'Library → House 638 m', size: 12, anchor: 'middle' }),
+      refBraceH({ x1: 130, x2: 753, y: 151, text: '?', below: true }),
+      refText({ x: 130, y: 240, text: '(a) 1068 m = 1 km 68 m    (b) 1068 + 638 = 1706 m', size: 15, bold: true, color: '#2E7D32' })
+    ]
+  },
+  {
+    exam: { paper: 'Ai Tong 2025', section: 'C', qnum: 23, marks: 3 },
+    text: 'Ali has twice as many marbles as Betty. Carl has 3 times as many marbles as Ali. The total number of marbles the three children have is 774. How many marbles does Ali have?',
+    answerStatement: 'Ali has 172 marbles.',
+    expectedModel:
+      'THREE bars with the SAME unit size: Betty = 1 unit, Ali = 2 equal units, Carl = 6 equal units (3 times Ali’s 2 units). ' +
+      'A brace must show that all three bars together total 774, and the "?" goes on Ali’s bar. ' +
+      'The model must make visible that 9 units = 774, so 1 unit = 86 and Ali = 2 × 86 = 172. ' +
+      'Drawing Carl as 3 units (3 times Betty instead of 3 times Ali) is a marking error.',
+    workedSteps: [
+      'Betty = 1 unit, Ali = 2 units, Carl = 3 × 2 = 6 units',
+      'Total: 9 units = 774',
+      '1 unit = 774 ÷ 9 = 86',
+      'Ali = 2 units = 86 × 2 = 172'
+    ],
+    reference: [
+      refText({ x: 118, y: 68, text: 'Betty', anchor: 'end', bold: true }),
+      refBar({ x: 130, y: 45, units: 1, unitWidth: 70 }),
+      refText({ x: 118, y: 133, text: 'Ali', anchor: 'end', bold: true }),
+      refBar({ x: 130, y: 110, units: 2, unitWidth: 70, color: '#BBDEFB' }),
+      refText({ x: 200, y: 138, text: '?', size: 16, anchor: 'middle', bold: true }),
+      refText({ x: 118, y: 198, text: 'Carl', anchor: 'end', bold: true }),
+      refBar({ x: 130, y: 175, units: 6, unitWidth: 70, color: '#FFE0B2' }),
+      refBraceSide({ x: 565, y1: 45, y2: 221, text: '774' }),
+      refText({ x: 130, y: 278, text: '9 units = 774  →  1 unit = 86  →  Ali = 2 × 86 = 172', size: 15, bold: true, color: '#2E7D32' })
+    ]
+  },
+  {
+    exam: { paper: 'Ai Tong 2025', section: 'C', qnum: 24, marks: 3 },
+    text: 'Kate used 3 identical rectangles to form a pattern as shown in Figure 1: one rectangle lies across the top and two stand side by side below it. The length of each rectangle is 6 cm. She drew the pattern 8 times to fill up a piece of paper completely. What is the area of the paper?',
+    answerStatement: 'The area of the paper is 432 cm².',
+    expectedModel:
+      'Correct answer: 432 cm². Each rectangle is 6 cm long and 3 cm wide (two rectangles standing side by side make up the 6 cm length, so the width is 6 ÷ 2 = 3 cm). ' +
+      'One pattern of 3 rectangles is 6 cm wide and 3 + 6 = 9 cm tall, so its area is 6 × 9 = 54 cm² (equivalently 3 × 18 cm²). ' +
+      'The paper is 8 patterns: 54 × 8 = 432 cm². ' +
+      'Any clear working that finds the rectangle width 3 cm, a pattern area of 54 cm², and multiplies by 8 earns full credit.',
+    workedSteps: [
+      'Each rectangle: 6 cm long, 6 ÷ 2 = 3 cm wide',
+      'One pattern = 6 cm × 9 cm = 54 cm²',
+      'Paper = 54 × 8 = 432 cm²'
+    ]
+  },
+  {
+    exam: { paper: 'Ai Tong 2025', section: 'C', qnum: 25, marks: 3 },
+    text: 'The diagram shows the prices of Zoo entrance tickets: Child $7, Adult $22. (a) How much do 1 child and 1 adult ticket cost altogether? (b) Some children went to the zoo. They paid a total of $126 for their tickets. How many children went to the zoo?',
+    answerStatement: '(a) $29. (b) 18 children went to the zoo.',
+    expectedModel:
+      'Part (a): $7 + $22 = $29. ' +
+      'Part (b): $126 ÷ $7 = 18 children. ' +
+      'For (b), a bar of $126 split into equal units of $7 with "?" on the number of units is a correct model. ' +
+      'Using the adult price $22 anywhere in part (b) is a marking error — only children went.',
+    workedSteps: [
+      '(a) $7 + $22 = $29',
+      '(b) $126 ÷ $7 = 18 children'
+    ]
+  },
+  {
+    exam: { paper: 'Ai Tong 2025', section: 'C', qnum: 26, marks: 4 },
+    text: 'Mrs Tan baked an equal number of cupcakes and muffins. 90 cupcakes and 54 muffins were sold. The number of muffins left then became twice the number of cupcakes left. (a) How many cupcakes and muffins were unsold? (b) How many cupcakes and muffins were baked?',
+    answerStatement: '(a) 108 cupcakes and muffins were unsold. (b) 252 cupcakes and muffins were baked.',
+    expectedModel:
+      'TWO bars of EQUAL length (equal cupcakes and muffins baked). ' +
+      'The cupcakes bar is split into "sold 90" and 1 unit left; the muffins bar is split into "sold 54" and 2 units left (twice the cupcakes left), with the SAME unit size in both bars. ' +
+      'Because the bars are equal, the model must show 1 unit = 90 − 54 = 36. ' +
+      'Part (a): unsold = 1 unit + 2 units = 3 × 36 = 108. Part (b): baked = 108 + 90 + 54 = 252 (126 of each). ' +
+      'Unequal bar lengths or unequal unit sizes are marking errors.',
+    workedSteps: [
+      'Equal bars: cupcakes left = 1 unit, muffins left = 2 units',
+      '1 unit = 90 − 54 = 36',
+      '(a) Unsold = 3 units = 3 × 36 = 108',
+      '(b) Baked = 108 + 90 + 54 = 252'
+    ],
+    reference: [
+      refText({ x: 118, y: 88, text: 'Cupcakes', anchor: 'end', bold: true }),
+      refBar({ x: 130, y: 65, units: 1, unitWidth: 357, color: '#FFCDD2' }),
+      refBar({ x: 487, y: 65, units: 1, unitWidth: 143 }),
+      refText({ x: 308, y: 92, text: 'sold 90', size: 13, anchor: 'middle' }),
+      refBraceH({ x1: 487, x2: 630, y: 111, text: '1 unit', below: true }),
+      refText({ x: 118, y: 178, text: 'Muffins', anchor: 'end', bold: true }),
+      refBar({ x: 130, y: 155, units: 1, unitWidth: 214, color: '#FFCDD2' }),
+      refBar({ x: 344, y: 155, units: 2, unitWidth: 143 }),
+      refText({ x: 237, y: 182, text: 'sold 54', size: 13, anchor: 'middle' }),
+      refBraceH({ x1: 344, x2: 630, y: 201, text: '2 units', below: true }),
+      refText({ x: 130, y: 272, text: '1 unit = 90 − 54 = 36  →  unsold = 3 × 36 = 108  →  baked = 108 + 90 + 54 = 252', size: 14, bold: true, color: '#2E7D32' })
+    ]
   }
 ];
 
 var p3Deck = [];
+var p3Filters = { paper: 'all', section: 'all' };
+
+function p3FilteredPool() {
+  return P3_QUESTIONS.filter(function (q) {
+    return (p3Filters.paper === 'all' || q.exam.paper === p3Filters.paper) &&
+           (p3Filters.section === 'all' || q.exam.section === p3Filters.section);
+  });
+}
 
 function generateP3Question() {
-  // Deal from a shuffled deck so students see all five questions
-  // before any repeats.
+  // Deal from a shuffled deck of the questions matching the current
+  // filters, so students see every matching question before repeats.
+  var pool = p3FilteredPool();
+  if (!pool.length) { pool = P3_QUESTIONS.slice(); }
+  // Drop any queued questions that no longer match the filter
+  p3Deck = p3Deck.filter(function (q) { return pool.indexOf(q) !== -1; });
   if (!p3Deck.length) {
-    p3Deck = P3_QUESTIONS.slice();
+    p3Deck = pool.slice();
     for (var i = p3Deck.length - 1; i > 0; i--) {
       var j = randomInt(0, i);
       var swap = p3Deck[i];
@@ -2569,7 +2768,7 @@ var CONCEPTS = [
   { id: 'fraction',    icon: '½', label: 'Fraction',            generate: generateFraction,
     goal: 'Split ONE bar into equal units matching the denominator. Shade the spent part.' },
   { id: 'p3exam',      icon: '★', label: 'P3 Questions',        generate: generateP3Question,
-    goal: 'Real problem sums from a P3 End-of-Year paper (Section C). Read carefully, identify the concept yourself, then draw the model.' },
+    goal: 'Real problem sums from P3 End-of-Year exam papers. Use the filter above the question to pick a paper, then show your working or draw the model.' },
   { id: 'mixed',       icon: '⚄', label: 'Mixed — surprise me!', generate: null,
     goal: 'Identify the concept yourself, then draw the matching model.' },
   { id: 'custom',      icon: '✎', label: 'My Own Question',   generate: null,
@@ -4128,6 +4327,47 @@ function buildMarkingPrompt() {
     ].join('\n');
   }
 
+  /* ── Real exam question (P3 Questions bank): the rubric describes
+     the correct answer and working, which may or may not be a bar
+     model — accept any mathematically sound response. ───────────── */
+  if (scenario.exam) {
+    return [
+      'You are a strict but encouraging Primary school Mathematics teacher in Singapore marking a Primary 3 student’s response, drawn or written on a canvas.',
+      '',
+      'THE EXAM QUESTION (from the ' + scenario.exam.paper + ' End-of-Year paper, Section ' + scenario.exam.section + ', Q' + scenario.exam.qnum + ', worth ' + scenario.exam.marks + ' mark(s)):',
+      scenario.text,
+      '',
+      'WHAT A CORRECT RESPONSE MUST SHOW (marking rubric):',
+      scenario.expectedModel,
+      '',
+      'CORRECT FINAL ANSWER (for your reference): ' + scenario.answerStatement,
+      '',
+      'STRUCTURED DESCRIPTION OF WHAT THE STUDENT DREW (cross-check against the attached image):',
+      describeStudentElements(),
+      '',
+      'An image of the student’s actual work is attached. Mark the WORK, using the structured description to resolve anything hard to read.',
+      '',
+      'MARKING GUIDANCE:',
+      '- The student may respond with a bar model, number sentences, column working, a labelled diagram, or a clearly stated answer — built with the structured tools OR entirely freehand with the pen. Any mathematically sound response deserves full marks; a correct bar model is welcome but NOT required unless the rubric explicitly demands one.',
+      '- If the question has parts (a) and (b), check each part and say which parts are correct.',
+      '- Award a score from 0 to 5: 5 = fully correct; 4 = correct method with one minor slip; 3 = right idea but a key step missing or one part wrong; 2 = partially relevant working but method wrong; 1 = attempted but mostly incorrect; 0 = empty or unrelated.',
+      '- Judge CORRECTNESS and CLARITY, not drawing neatness.',
+      '- Be specific: refer to the actual names and numbers in the question.',
+      '- Keep every list item under 20 words, in language a 9–10 year old understands.',
+      '- The hint must nudge without giving the full answer away (unless score is 5, then it can affirm the next step).',
+      '',
+      'Respond with ONLY a JSON object, no markdown fences, exactly this shape:',
+      '{',
+      '  "score": <integer 0-5>,',
+      '  "verdict": "<short headline, max 8 words>",',
+      '  "summary": "<one or two sentences summarising the marking>",',
+      '  "strengths": ["<thing done well>", ...],',
+      '  "issues": ["<specific thing to fix>", ...],',
+      '  "hint": "<one guiding hint>"',
+      '}'
+    ].join('\n');
+  }
+
   return [
     'You are a strict but encouraging PSLE Mathematics teacher in Singapore marking a Primary school student’s BAR MODEL drawing.',
     '',
@@ -4470,6 +4710,7 @@ function buildConceptChips() {
         var chips = conceptPicker.querySelectorAll('.concept-chip');
         for (var c = 0; c < chips.length; c++) { chips[c].classList.remove('active'); }
         chip.classList.add('active');
+        toggleP3FilterCard(concept.id === 'p3exam');
         if (concept.id === 'custom') {
           openCustomComposer();
         } else {
@@ -4480,6 +4721,63 @@ function buildConceptChips() {
       conceptPicker.appendChild(chip);
     })(CONCEPTS[i]);
   }
+}
+
+/* ── P3 exam-question filter bar ─────────────────────────────────── */
+
+var p3FilterCard = document.getElementById('p3FilterCard');
+var p3PaperChips = document.getElementById('p3PaperChips');
+var p3SectionChips = document.getElementById('p3SectionChips');
+var p3FilterCount = document.getElementById('p3FilterCount');
+
+function toggleP3FilterCard(show) {
+  p3FilterCard.classList.toggle('open', !!show);
+}
+
+function uniqueExamValues(key) {
+  var values = [];
+  for (var i = 0; i < P3_QUESTIONS.length; i++) {
+    var value = P3_QUESTIONS[i].exam[key];
+    if (values.indexOf(value) === -1) { values.push(value); }
+  }
+  return values;
+}
+
+function buildP3FilterChips() {
+  buildP3ChipRow(p3PaperChips, 'paper', ['all'].concat(uniqueExamValues('paper')));
+  buildP3ChipRow(p3SectionChips, 'section', ['all'].concat(uniqueExamValues('section')));
+  updateP3FilterCount();
+}
+
+function buildP3ChipRow(container, filterKey, values) {
+  container.innerHTML = '';
+  for (var i = 0; i < values.length; i++) {
+    (function (value) {
+      var chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'p3-filter-chip' + (p3Filters[filterKey] === value ? ' active' : '');
+      chip.textContent = value === 'all'
+        ? (filterKey === 'paper' ? 'All papers' : 'All sections')
+        : (filterKey === 'section' ? 'Section ' + value : value);
+      chip.addEventListener('click', function () {
+        p3Filters[filterKey] = value;
+        var chips = container.querySelectorAll('.p3-filter-chip');
+        for (var c = 0; c < chips.length; c++) { chips[c].classList.remove('active'); }
+        chip.classList.add('active');
+        p3Deck = [];
+        updateP3FilterCount();
+        if (appState.currentConceptId === 'p3exam') { loadNewScenario(); }
+      });
+      container.appendChild(chip);
+    })(values[i]);
+  }
+}
+
+function updateP3FilterCount() {
+  var count = p3FilteredPool().length;
+  p3FilterCount.textContent = count === 0
+    ? 'No questions match this filter — showing all papers instead.'
+    : count + ' question' + (count === 1 ? '' : 's') + ' in this practice deck.';
 }
 
 function loadNewScenario() {
@@ -4507,6 +4805,10 @@ function loadNewScenario() {
     scenarioBadgeIcon.textContent = concept.icon;
     scenarioBadgeText.textContent = concept.label;
     scenarioGoalNode.textContent = concept.goal;
+    if (scenario.exam) {
+      scenarioBadgeText.textContent = 'P3 · ' + scenario.exam.paper +
+        ' · Section ' + scenario.exam.section + ' · Q' + scenario.exam.qnum;
+    }
   }
 
   appState.currentScenario = scenario;
@@ -4536,7 +4838,9 @@ function toggleModelAnswer() {
     return;
   }
   var scenario = appState.currentScenario;
-  renderReferenceModel(scenario.reference);
+  var hasReference = scenario.reference && scenario.reference.length;
+  if (hasReference) { renderReferenceModel(scenario.reference); }
+  referenceSvg.style.display = hasReference ? '' : 'none';
   workedStepsNode.innerHTML = '';
   for (var i = 0; i < scenario.workedSteps.length; i++) {
     var stepItem = document.createElement('li');
@@ -4690,6 +4994,7 @@ document.addEventListener('keydown', function (event) {
 /* ── Boot ────────────────────────────────────────────────────────── */
 
 buildConceptChips();
+buildP3FilterChips();
 loadNewScenario();
 renderAllElements();
 </script>
