@@ -5244,14 +5244,20 @@ canvasSvg.addEventListener('pointerdown', function (event) {
       // constrains the move to one axis, and Ctrl+Shift+drag still
       // duplicates along that axis.
       var additive = event.shiftKey;
+      // Ctrl / Cmd / Alt held means "duplicate this", never "edit its
+      // text", so such a click must not count towards a double-click.
+      // Otherwise two duplicate-drags in quick succession on the same
+      // element open the text editor instead of dragging a copy out.
+      var wantsDuplicate = event.ctrlKey || event.metaKey || event.altKey;
       if (hit) {
         var wasSelected = isSelected(hit.id);
 
-        if (additive) {
+        if (additive || wantsDuplicate) {
           lastSelectClick = { id: null, time: 0 };
           // Bring it into the group straight away so a shift+drag moves
           // it along with everything else.
-          if (!wasSelected) { setSelection(appState.selectedIds.concat([hit.id])); }
+          if (additive && !wasSelected) { setSelection(appState.selectedIds.concat([hit.id])); }
+          else if (!additive && !wasSelected) { setSelection([hit.id]); }
         } else {
           // Second click on the same element within the double-click
           // window opens its text editor (PowerPoint behaviour)
@@ -5280,7 +5286,7 @@ canvasSvg.addEventListener('pointerdown', function (event) {
           originals: selectedElements().map(function (el) { return JSON.stringify(el); }),
           moved: false,
           // Ctrl+drag (or Alt/Cmd+drag) duplicates, PowerPoint-style
-          wantsDuplicate: event.ctrlKey || event.metaKey || event.altKey,
+          wantsDuplicate: wantsDuplicate,
           duplicated: false
         };
       } else {
@@ -5385,6 +5391,16 @@ canvasSvg.addEventListener('pointermove', function (event) {
         // the dragged elements first so the undo snapshot is pristine.
         restoreSessionOriginals(pointerSession);
         pushUndoSnapshot();
+
+        /* restoreSessionOriginals swaps FRESH objects into
+           appState.elements, which orphans the references this session
+           is holding. Re-point at the live objects, or the rest of the
+           drag would quietly mutate detached copies and nothing on
+           screen would move. */
+        pointerSession.elements = pointerSession.originals.map(function (json) {
+          return findElementById(JSON.parse(json).id);
+        });
+
         for (var t = 0; t < pointerSession.originals.length; t++) {
           var twin = JSON.parse(pointerSession.originals[t]);
           twin.id = newElementId();
@@ -5396,6 +5412,7 @@ canvasSvg.addEventListener('pointermove', function (event) {
     // Every selected element shifts by the same delta, so the group
     // keeps its shape.
     for (var m = 0; m < pointerSession.elements.length; m++) {
+      if (!pointerSession.elements[m]) { continue; }
       applyMove(pointerSession.elements[m], JSON.parse(pointerSession.originals[m]), dx, dy);
     }
     renderAllElements();
