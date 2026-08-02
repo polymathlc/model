@@ -625,6 +625,75 @@ input, button, select, textarea { font-family: inherit; }
   text-overflow: ellipsis;
 }
 
+/* Floating action bar over the current selection. Bulk duplicate,
+   copy, delete and recolour used to be keyboard-only and therefore
+   invisible; this puts them where the selection is. */
+.selection-actions {
+  position: absolute;
+  display: none;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 8px;
+  background: var(--bg-primary, #FFFFFF);
+  border: 1px solid var(--border-medium, #D6D6D6);
+  border-radius: var(--radius-full, 999px);
+  box-shadow: var(--shadow-sm, 0 2px 10px rgba(0,0,0,0.13));
+  z-index: 6;
+  white-space: nowrap;
+  transform: translate(-50%, -100%);
+}
+.selection-actions.visible { display: inline-flex; animation: fadeInUp 0.16s ease both; }
+
+.selection-actions .sel-count {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #2E7D32;
+  padding: 0 4px 0 2px;
+}
+.sel-act-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 9px;
+  border-radius: var(--radius-full, 999px);
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast, 0.15s);
+}
+.sel-act-btn:hover {
+  background: var(--accent-bg, #F1F8F1);
+  border-color: var(--accent-base, #66BB6A);
+  color: var(--text-primary);
+}
+.sel-act-btn.danger:hover {
+  background: #FDECEA;
+  border-color: #E64A19;
+  color: #B33410;
+}
+.sel-act-btn svg {
+  width: 13px; height: 13px;
+  stroke: currentColor; fill: none;
+  stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+}
+.sel-act-sep {
+  width: 1px; height: 18px;
+  background: var(--border-medium, #D6D6D6);
+  flex-shrink: 0;
+}
+.sel-swatch {
+  width: 17px; height: 17px;
+  border-radius: 50%;
+  border: 2px solid var(--border-medium, #D6D6D6);
+  padding: 0;
+  cursor: pointer;
+  transition: transform var(--transition-fast, 0.15s), border-color var(--transition-fast, 0.15s);
+}
+.sel-swatch:hover { transform: scale(1.18); border-color: var(--accent-dark, #2E7D32); }
+
 /* Badge showing how many elements are in a multi-selection */
 .selection-count {
   position: absolute;
@@ -1649,7 +1718,7 @@ input, button, select, textarea { font-family: inherit; }
     <div class="toolbar" id="toolbar" role="toolbar" aria-label="Drawing tools">
 
       <button class="tool-btn tool-select" data-tool="select" type="button" title="Select &amp; move (V) — click a shape, drag a box round several, or Shift+click to add one. Ctrl+A selects all. Shift+drag keeps to one direction; Ctrl+drag duplicates.">
-        <svg viewBox="0 0 24 24"><path d="M4 3l7 17 2.6-6.4L20 11z" fill="currentColor"/><path d="M14 15l6.5 6.5" stroke-dasharray="2 2"/></svg>
+        <svg viewBox="0 0 24 24"><rect x="2.5" y="2.5" width="19" height="19" rx="2" stroke-dasharray="3 2.6"/><path d="M9 8l6.5 15 2.4-5.9L24 15z" fill="currentColor" stroke="none" transform="scale(0.62) translate(6 3)"/></svg>
         <span class="tool-label">Select</span>
       </button>
 
@@ -1753,6 +1822,7 @@ input, button, select, textarea { font-family: inherit; }
       </svg>
       <div class="canvas-hint" id="canvasHint">Click and drag to draw your first bar</div>
       <div class="selection-count" id="selectionCount" aria-live="polite"></div>
+      <div class="selection-actions" id="selectionActions" role="toolbar" aria-label="Actions for the selected shapes"></div>
     </div>
 
     <!-- Actions -->
@@ -4042,6 +4112,7 @@ var previewLayer = document.getElementById('previewLayer');
 var selectionLayer = document.getElementById('selectionLayer');
 var canvasHint = document.getElementById('canvasHint');
 var selectionCountNode = document.getElementById('selectionCount');
+var selectionActionsNode = document.getElementById('selectionActions');
 var canvasFrame = canvasSvg.parentElement;
 
 var SVG_NS = 'http://www.w3.org/2000/svg';
@@ -4566,6 +4637,115 @@ function updateSelectionCount() {
   var count = appState.selectedIds.length;
   selectionCountNode.textContent = count > 1 ? count + ' selected' : '';
   selectionCountNode.classList.toggle('visible', count > 1);
+  updateSelectionActions();
+}
+
+/* ── Selection action bar ────────────────────────────────────────────
+   Bulk duplicate / copy / delete / recolour existed only as keyboard
+   shortcuts, which made them impossible to find. This floats the same
+   actions right above whatever is selected. */
+
+var SELECTION_COLOURS = ['#C8E6C9', '#BBDEFB', '#D1C4E9', '#FFE0B2', '#FFCDD2', '#FFFFFF'];
+
+var SEL_ACTIONS = [
+  { key: 'duplicate', label: 'Duplicate', title: 'Duplicate the selection (Ctrl+D)',
+    icon: '<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 00-2-2H5a2 2 0 00-2 2v9a2 2 0 002 2h3"/>',
+    run: performDuplicate },
+  { key: 'copy', label: 'Copy', title: 'Copy the selection (Ctrl+C)',
+    icon: '<rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 012-2h10"/>',
+    run: performCopy },
+  { key: 'delete', label: 'Delete', title: 'Delete the selection (Del)', danger: true,
+    icon: '<path d="M4 7h16"/><path d="M10 11v6M14 11v6"/><path d="M6 7l1 13h10l1-13"/><path d="M9 7V4h6v3"/>',
+    run: performDeleteSelection }
+];
+
+function buildSelectionActions() {
+  if (!selectionActionsNode) { return; }
+  selectionActionsNode.innerHTML = '';
+
+  var count = document.createElement('span');
+  count.className = 'sel-count';
+  selectionActionsNode.appendChild(count);
+
+  SEL_ACTIONS.forEach(function (action) {
+    var button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'sel-act-btn' + (action.danger ? ' danger' : '');
+    button.title = action.title;
+    button.innerHTML = '<svg viewBox="0 0 24 24">' + action.icon + '</svg>' + action.label;
+    button.addEventListener('click', function (event) {
+      event.stopPropagation();
+      action.run();
+    });
+    selectionActionsNode.appendChild(button);
+  });
+
+  var separator = document.createElement('span');
+  separator.className = 'sel-act-sep';
+  separator.setAttribute('data-role', 'colour-separator');
+  selectionActionsNode.appendChild(separator);
+
+  SELECTION_COLOURS.forEach(function (colour) {
+    var swatch = document.createElement('button');
+    swatch.type = 'button';
+    swatch.className = 'sel-swatch';
+    swatch.setAttribute('data-role', 'colour');
+    swatch.style.background = colour;
+    swatch.title = 'Recolour every selected bar';
+    swatch.addEventListener('click', function (event) {
+      event.stopPropagation();
+      recolourSelection(colour);
+    });
+    selectionActionsNode.appendChild(swatch);
+  });
+}
+
+function recolourSelection(colour) {
+  var bars = selectedElements().filter(function (el) { return el.type === 'bar'; });
+  if (!bars.length) { return; }
+  pushUndoSnapshot();
+  bars.forEach(function (bar) { bar.color = colour; });
+  renderAllElements();
+}
+
+function updateSelectionActions() {
+  if (!selectionActionsNode) { return; }
+  var chosen = selectedElements();
+  // Hidden mid-drag so it never sits under the pointer or jitters along
+  var busy = pointerSession && (pointerSession.mode === 'move' ||
+                                pointerSession.mode === 'resize' ||
+                                pointerSession.mode === 'marquee');
+  if (!chosen.length || busy) {
+    selectionActionsNode.classList.remove('visible');
+    return;
+  }
+
+  var countNode = selectionActionsNode.querySelector('.sel-count');
+  if (countNode) {
+    countNode.textContent = chosen.length > 1 ? chosen.length + ' selected' : '1 selected';
+  }
+  // Colours only make sense when a bar is in the selection
+  var hasBar = chosen.some(function (el) { return el.type === 'bar'; });
+  var colourNodes = selectionActionsNode.querySelectorAll('[data-role="colour"], [data-role="colour-separator"]');
+  for (var i = 0; i < colourNodes.length; i++) {
+    colourNodes[i].style.display = hasBar ? '' : 'none';
+  }
+
+  var box = selectionBounds(chosen);
+  var anchor = canvasScreenPosition(box.x + box.w / 2, box.y);
+  var frameWidth = canvasFrame.clientWidth;
+  var barWidth = selectionActionsNode.offsetWidth || 260;
+  // Keep the bar on-canvas horizontally, and drop it below the
+  // selection when there is no room above.
+  var left = Math.max(barWidth / 2 + 6, Math.min(frameWidth - barWidth / 2 - 6, anchor.left));
+  var top = anchor.top - 12;
+  if (top < 44) {
+    var lower = canvasScreenPosition(box.x + box.w / 2, box.y + box.h);
+    top = lower.top + 52;
+  }
+  selectionActionsNode.style.left = left + 'px';
+  selectionActionsNode.style.top = top + 'px';
+  selectionActionsNode.classList.add('visible');
 }
 
 /* ── Resize handles ──────────────────────────────────────────────────
@@ -5390,6 +5570,7 @@ canvasSvg.addEventListener('pointerup', function (event) {
   }
 
   pointerSession = null;
+  updateSelectionActions();   // re-show once the drag is over
 });
 
 function hitTest(domTarget) {
@@ -6641,6 +6822,7 @@ document.addEventListener('keydown', function (event) {
 
 buildConceptChips();
 buildP3FilterChips();
+buildSelectionActions();
 loadNewScenario();
 renderAllElements();
 </script>
