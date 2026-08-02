@@ -607,6 +607,25 @@ input, button, select, textarea { font-family: inherit; }
   text-overflow: ellipsis;
 }
 
+/* Badge showing how many elements are in a multi-selection */
+.selection-count {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  color: #2E7D32;
+  background: rgba(200, 230, 201, 0.92);
+  border: 1px solid #2E7D32;
+  padding: 3px 11px;
+  border-radius: var(--radius-full);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--transition-base);
+  white-space: nowrap;
+}
+.selection-count.visible { opacity: 1; }
+
 /* Floating text input for labels */
 .floating-input {
   position: absolute;
@@ -1611,8 +1630,8 @@ input, button, select, textarea { font-family: inherit; }
     <!-- Toolbar -->
     <div class="toolbar" id="toolbar" role="toolbar" aria-label="Drawing tools">
 
-      <button class="tool-btn" data-tool="select" type="button" title="Select & move (V)">
-        <svg viewBox="0 0 24 24"><path d="M4 3l7 17 2.6-6.4L20 11z"/></svg>
+      <button class="tool-btn" data-tool="select" type="button" title="Select &amp; move (V) — drag a box round several things, or Shift+click to add one. Ctrl+A selects all.">
+        <svg viewBox="0 0 24 24"><path d="M4 3l7 17 2.6-6.4L20 11z"/><path d="M13.5 14.5l6 6" stroke-dasharray="2 2"/></svg>
         <span class="tool-label">Select</span>
       </button>
 
@@ -1708,6 +1727,7 @@ input, button, select, textarea { font-family: inherit; }
         <g id="selectionLayer"></g>
       </svg>
       <div class="canvas-hint" id="canvasHint">Click and drag to draw your first bar</div>
+      <div class="selection-count" id="selectionCount" aria-live="polite"></div>
     </div>
 
     <!-- Actions -->
@@ -3657,7 +3677,8 @@ var appState = {
   undoStack: [],
   activeTool: 'bar',
   activeColor: '#C8E6C9',
-  selectedId: null,
+  selectedId: null,      // set only when EXACTLY one element is selected
+  selectedIds: [],       // the real selection; single-select is the 1-item case
   nextId: 1,
   isMarking: false
 };
@@ -3667,6 +3688,7 @@ var elementsLayer = document.getElementById('elementsLayer');
 var previewLayer = document.getElementById('previewLayer');
 var selectionLayer = document.getElementById('selectionLayer');
 var canvasHint = document.getElementById('canvasHint');
+var selectionCountNode = document.getElementById('selectionCount');
 var canvasFrame = canvasSvg.parentElement;
 
 var SVG_NS = 'http://www.w3.org/2000/svg';
@@ -4029,22 +4051,91 @@ function renderAllElements() {
   updateCanvasHint();
 }
 
+/* ── Selection state ─────────────────────────────────────────────────
+   appState.selectedIds is the single source of truth. appState.selectedId
+   mirrors it ONLY when exactly one element is selected, so every
+   single-element behaviour (resize handles, F2 text editing, the split
+   and shade popovers) keeps working untouched and simply stands down
+   while a multi-selection is active. */
+
+function setSelection(ids) {
+  var unique = [];
+  for (var i = 0; i < ids.length; i++) {
+    if (unique.indexOf(ids[i]) === -1 && findElementById(ids[i])) { unique.push(ids[i]); }
+  }
+  appState.selectedIds = unique;
+  appState.selectedId = unique.length === 1 ? unique[0] : null;
+  updateSelectionCount();
+}
+
+function clearSelection() { setSelection([]); }
+
+function isSelected(id) { return appState.selectedIds.indexOf(id) !== -1; }
+
+function toggleInSelection(id) {
+  var next = appState.selectedIds.slice();
+  var at = next.indexOf(id);
+  if (at === -1) { next.push(id); } else { next.splice(at, 1); }
+  setSelection(next);
+}
+
+function selectedElements() {
+  var list = [];
+  for (var i = 0; i < appState.selectedIds.length; i++) {
+    var element = findElementById(appState.selectedIds[i]);
+    if (element) { list.push(element); }
+  }
+  return list;
+}
+
+function selectionBounds(elements) {
+  if (!elements.length) { return null; }
+  var first = elementBounds(elements[0]);
+  var minX = first.x, minY = first.y;
+  var maxX = first.x + first.w, maxY = first.y + first.h;
+  for (var i = 1; i < elements.length; i++) {
+    var box = elementBounds(elements[i]);
+    minX = Math.min(minX, box.x);
+    minY = Math.min(minY, box.y);
+    maxX = Math.max(maxX, box.x + box.w);
+    maxY = Math.max(maxY, box.y + box.h);
+  }
+  return { x: minX, y: minY, w: maxX - minX, h: maxY - minY };
+}
+
 function renderSelection() {
   while (selectionLayer.firstChild) { selectionLayer.removeChild(selectionLayer.firstChild); }
-  if (!appState.selectedId) { return; }
-  var element = findElementById(appState.selectedId);
-  if (!element) { return; }
-  var box = elementBounds(element);
-  selectionLayer.appendChild(makeNode('rect', {
-    x: box.x - 5, y: box.y - 5,
-    width: box.w + 10, height: box.h + 10,
-    fill: 'none', stroke: '#66BB6A', 'stroke-width': 1.6,
-    'stroke-dasharray': '5 4', rx: 6, 'pointer-events': 'none'
-  }));
+  var chosen = selectedElements();
+  if (!chosen.length) { updateSelectionCount(); return; }
 
-  var handles = resizeHandlesFor(element);
-  for (var i = 0; i < handles.length; i++) {
-    var handle = handles[i];
+  // Outline every selected element
+  for (var i = 0; i < chosen.length; i++) {
+    var box = elementBounds(chosen[i]);
+    selectionLayer.appendChild(makeNode('rect', {
+      x: box.x - 5, y: box.y - 5,
+      width: box.w + 10, height: box.h + 10,
+      fill: 'none', stroke: '#66BB6A', 'stroke-width': 1.6,
+      'stroke-dasharray': '5 4', rx: 6, 'pointer-events': 'none'
+    }));
+  }
+
+  if (chosen.length > 1) {
+    // A softer box around the whole group, so it reads as one unit
+    var group = selectionBounds(chosen);
+    selectionLayer.appendChild(makeNode('rect', {
+      x: group.x - 11, y: group.y - 11,
+      width: group.w + 22, height: group.h + 22,
+      fill: '#66BB6A', 'fill-opacity': 0.06,
+      stroke: '#2E7D32', 'stroke-width': 1.4,
+      'stroke-dasharray': '2 5', rx: 10, 'pointer-events': 'none'
+    }));
+    updateSelectionCount();
+    return;   // resize handles are single-element only
+  }
+
+  var handles = resizeHandlesFor(chosen[0]);
+  for (var h = 0; h < handles.length; h++) {
+    var handle = handles[h];
     selectionLayer.appendChild(makeNode('rect', {
       x: handle.x - HANDLE_HALF, y: handle.y - HANDLE_HALF,
       width: HANDLE_HALF * 2, height: HANDLE_HALF * 2,
@@ -4053,6 +4144,14 @@ function renderSelection() {
       style: 'cursor:' + handle.cursor
     }));
   }
+  updateSelectionCount();
+}
+
+function updateSelectionCount() {
+  if (!selectionCountNode) { return; }
+  var count = appState.selectedIds.length;
+  selectionCountNode.textContent = count > 1 ? count + ' selected' : '';
+  selectionCountNode.classList.toggle('visible', count > 1);
 }
 
 /* ── Resize handles ──────────────────────────────────────────────────
@@ -4240,6 +4339,26 @@ function elementBounds(element) {
   return { x: 0, y: 0, w: 0, h: 0 };
 }
 
+function indexOfElementId(id) {
+  for (var i = 0; i < appState.elements.length; i++) {
+    if (appState.elements[i].id === id) { return i; }
+  }
+  return -1;
+}
+
+/* Put a drag's elements back EXACTLY where they started, so the undo
+   snapshot captures the true pre-drag state. Replacing the objects
+   outright matters: replaying applyMove with a zero delta would re-snap
+   to the 8px grid and shift anything sitting off-grid (a 1px Ctrl+arrow
+   nudge, say) by up to half a grid step. */
+function restoreSessionOriginals(session) {
+  for (var i = 0; i < session.originals.length; i++) {
+    var original = JSON.parse(session.originals[i]);
+    var at = indexOfElementId(original.id);
+    if (at !== -1) { appState.elements[at] = original; }
+  }
+}
+
 function findElementById(id) {
   for (var i = 0; i < appState.elements.length; i++) {
     if (appState.elements[i].id === id) { return appState.elements[i]; }
@@ -4255,19 +4374,21 @@ function pushUndoSnapshot() {
 function performUndo() {
   if (appState.undoStack.length === 0) { return; }
   appState.elements = JSON.parse(appState.undoStack.pop());
-  appState.selectedId = null;
+  clearSelection();
   renderAllElements();
 }
 
 /* ── Copy & paste ────────────────────────────────────────────────────
-   An internal clipboard for drawn elements. Copy stores a deep JSON
-   clone of the selected element; every paste stamps a fresh copy with
-   a new id, offset by one grid-friendly step per paste so repeated
-   pastes cascade diagonally instead of stacking invisibly. The pasted
-   element becomes the new selection so it can be dragged into place
-   immediately. Ctrl+D duplicates the selection in one stroke.       */
+   An internal clipboard for drawn elements. Copy stores deep JSON
+   clones of every selected element; each paste stamps fresh copies with
+   new ids, offset by one grid-friendly step per paste so repeated
+   pastes cascade diagonally instead of stacking invisibly. The whole
+   pasted group becomes the new selection so it can be dragged into
+   place immediately. Ctrl+D duplicates the selection in one stroke.
+   A multi-element paste shifts every piece by the SAME offset, so the
+   group keeps its shape.                                            */
 
-var elementClipboard = null;   // JSON string of the copied element
+var elementClipboard = null;   // array of JSON strings, one per element
 var pasteCount = 0;            // resets on each fresh copy
 
 function offsetElementInPlace(element, dx, dy, exact) {
@@ -4289,40 +4410,83 @@ function clampElementToCanvas(element) {
 }
 
 function performCopy() {
-  if (!appState.selectedId) {
-    canvasHint.textContent = 'Select an element first (V), then Copy';
+  var chosen = selectedElements();
+  if (!chosen.length) {
+    canvasHint.textContent = 'Select something first (V) — drag a box around it, then Copy';
     return false;
   }
-  var element = findElementById(appState.selectedId);
-  if (!element) { return false; }
-  elementClipboard = JSON.stringify(element);
+  elementClipboard = chosen.map(function (el) { return JSON.stringify(el); });
   pasteCount = 0;
-  canvasHint.textContent = 'Copied — press Ctrl+V or the Paste button';
+  canvasHint.textContent = chosen.length > 1
+    ? 'Copied ' + chosen.length + ' items — press Ctrl+V or the Paste button'
+    : 'Copied — press Ctrl+V or the Paste button';
   return true;
 }
 
 function performPaste() {
-  if (!elementClipboard) {
-    canvasHint.textContent = 'Nothing copied yet — select an element and Copy first';
+  if (!elementClipboard || !elementClipboard.length) {
+    canvasHint.textContent = 'Nothing copied yet — select something and Copy first';
     return false;
   }
   pasteCount += 1;
-  var copy = JSON.parse(elementClipboard);
-  copy.id = newElementId();
   var step = 24 * pasteCount;          // cascade: 24, 48, 72, …
-  offsetElementInPlace(copy, step, step);
-  clampElementToCanvas(copy);
+
+  var copies = elementClipboard.map(function (json) {
+    var copy = JSON.parse(json);
+    copy.id = newElementId();
+    offsetElementInPlace(copy, step, step);
+    return copy;
+  });
+  // Pull the group back on-canvas as one piece, so relative spacing
+  // survives: measure the overflow once and shift everything by it.
+  var pull = groupPullBack(copies);
+  if (pull.x !== 0 || pull.y !== 0) {
+    copies.forEach(function (copy) { offsetElementInPlace(copy, pull.x, pull.y); });
+  }
 
   pushUndoSnapshot();
-  appState.elements.push(copy);
-  appState.selectedId = copy.id;       // ready to drag into place
+  copies.forEach(function (copy) { appState.elements.push(copy); });
+  setSelection(copies.map(function (copy) { return copy.id; }));  // ready to drag
   renderAllElements();
   return true;
 }
 
+function groupPullBack(elements) {
+  var box = selectionBounds(elements);
+  if (!box) { return { x: 0, y: 0 }; }
+  var pullX = 0, pullY = 0;
+  if (box.x + box.w > 890) { pullX = 890 - (box.x + box.w); }
+  if (box.y + box.h > 450) { pullY = 450 - (box.y + box.h); }
+  if (box.x + pullX < 10) { pullX = 10 - box.x; }
+  if (box.y + pullY < 10) { pullY = 10 - box.y; }
+  return { x: pullX, y: pullY };
+}
+
 function performDuplicate() {
-  // Ctrl+D convenience: copy + paste of the selection in one action
+  // Ctrl+D convenience: copy + paste of the whole selection in one action
   if (performCopy()) { performPaste(); }
+}
+
+function performSelectAll() {
+  if (!appState.elements.length) { return; }
+  if (appState.activeTool !== 'select') {
+    var selectButton = document.querySelector('.tool-btn[data-tool="select"]');
+    if (selectButton) { selectButton.click(); }
+  }
+  setSelection(appState.elements.map(function (el) { return el.id; }));
+  renderSelection();
+  updateCanvasHint();
+}
+
+function performDeleteSelection() {
+  if (!appState.selectedIds.length) { return; }
+  pushUndoSnapshot();
+  var doomed = appState.selectedIds.slice();
+  appState.elements = appState.elements.filter(function (el) {
+    return doomed.indexOf(el.id) === -1;
+  });
+  clearSelection();
+  renderAllElements();
 }
 
 function clearCanvas(skipConfirm) {
@@ -4331,14 +4495,14 @@ function clearCanvas(skipConfirm) {
   }
   pushUndoSnapshot();
   appState.elements = [];
-  appState.selectedId = null;
+  clearSelection();
   renderAllElements();
 }
 
 function updateCanvasHint() {
   var hints = {
     bar: 'Click and drag to draw a bar',
-    select: 'Drag to move · handles resize · double-click to edit text · Ctrl+drag duplicates · arrows nudge',
+    select: 'Drag a box round several things to select them · Shift+click adds one · Ctrl+A selects all · then drag, Ctrl+C/V, Ctrl+D or Delete the whole group',
     split: 'Click a bar to split it into equal units',
     shade: 'Click a unit to shade or unshade it',
     label: 'Click anywhere, type your label, then press Enter — use "?" for the unknown',
@@ -4351,6 +4515,8 @@ function updateCanvasHint() {
   };
   if (appState.elements.length === 0 && appState.activeTool === 'bar') {
     canvasHint.textContent = 'Click and drag to draw your first bar';
+  } else if (appState.selectedIds.length > 1) {
+    canvasHint.textContent = appState.selectedIds.length + ' selected — drag to move them together · Ctrl+C/V copy · Ctrl+D duplicate · Delete removes them';
   } else {
     canvasHint.textContent = hints[appState.activeTool] || '';
   }
@@ -4401,7 +4567,7 @@ function beginTextEdit(element, atPoint) {
     if (element.type === 'label' && !trimmed) {
       // An emptied label disappears, like an empty PowerPoint text box
       appState.elements = appState.elements.filter(function (el) { return el.id !== element.id; });
-      if (appState.selectedId === element.id) { appState.selectedId = null; }
+      setSelection(appState.selectedIds);   // drops the now-missing id
     } else if (element.type === 'brace') {
       element.text = trimmed || '?';
     } else {
@@ -4460,30 +4626,51 @@ canvasSvg.addEventListener('pointerdown', function (event) {
       };
     } else {
       var hit = hitTest(event.target);
+      // Shift+click adds to (or removes from) the selection
+      var additive = event.shiftKey;
       if (hit) {
+        if (additive) {
+          // Toggle this element in the group; no drag starts on a
+          // shift-click, so a mis-aimed toggle can't drag the group.
+          lastSelectClick = { id: null, time: 0 };
+          toggleInSelection(hit.id);
+          renderSelection();
+          return;
+        }
         // Second click on the same element within the double-click
         // window opens its text editor (PowerPoint behaviour)
         if (lastSelectClick.id === hit.id && event.timeStamp - lastSelectClick.time < DOUBLE_CLICK_MS) {
           lastSelectClick = { id: null, time: 0 };
-          appState.selectedId = hit.id;
+          setSelection([hit.id]);
           renderSelection();
           beginTextEdit(hit, point);
           return;
         }
         lastSelectClick = { id: hit.id, time: event.timeStamp };
-        appState.selectedId = hit.id;
+        // Clicking inside an existing multi-selection keeps the group so
+        // the whole group can be dragged; clicking outside it starts over.
+        if (!isSelected(hit.id)) { setSelection([hit.id]); }
         pointerSession = {
-          mode: 'move', element: hit,
+          mode: 'move',
+          clickedId: hit.id,
+          elements: selectedElements(),
           startX: point.x, startY: point.y,
-          original: JSON.stringify(hit),
+          originals: selectedElements().map(function (el) { return JSON.stringify(el); }),
           moved: false,
           // Ctrl+drag (or Alt/Cmd+drag) duplicates, PowerPoint-style
           wantsDuplicate: event.ctrlKey || event.metaKey || event.altKey,
           duplicated: false
         };
       } else {
+        // Empty canvas: start a rubber-band marquee. Shift keeps what is
+        // already selected and adds whatever the band sweeps up.
         lastSelectClick = { id: null, time: 0 };
-        appState.selectedId = null;
+        if (!additive) { clearSelection(); }
+        pointerSession = {
+          mode: 'marquee',
+          startX: point.x, startY: point.y,
+          basis: additive ? appState.selectedIds.slice() : []
+        };
       }
     }
     renderSelection();
@@ -4492,7 +4679,7 @@ canvasSvg.addEventListener('pointerdown', function (event) {
     if (target) {
       pushUndoSnapshot();
       appState.elements = appState.elements.filter(function (el) { return el.id !== target.id; });
-      if (appState.selectedId === target.id) { appState.selectedId = null; }
+      setSelection(appState.selectedIds);   // drops the erased id
       renderAllElements();
     }
   } else if (tool === 'split') {
@@ -4563,6 +4750,8 @@ canvasSvg.addEventListener('pointermove', function (event) {
   } else if (pointerSession.mode === 'drawDotted') {
     var dottedEnd = resolveDottedEnd(pointerSession.startX, pointerSession.startY, point);
     drawPreviewDotted(pointerSession.startX, pointerSession.startY, dottedEnd.x, dottedEnd.y);
+  } else if (pointerSession.mode === 'marquee') {
+    drawPreviewMarquee(pointerSession.startX, pointerSession.startY, point.x, point.y);
   } else if (pointerSession.mode === 'move') {
     var dx = point.x - pointerSession.startX;
     var dy = point.y - pointerSession.startY;
@@ -4573,17 +4762,23 @@ canvasSvg.addEventListener('pointermove', function (event) {
     if (!pointerSession.moved && (Math.abs(dx) > 2 || Math.abs(dy) > 2)) {
       pointerSession.moved = true;
       if (pointerSession.wantsDuplicate) {
-        // Ctrl+drag: leave a twin behind at the start position. Restore
-        // the dragged element first so the undo snapshot is pristine.
-        applyMove(pointerSession.element, JSON.parse(pointerSession.original), 0, 0);
+        // Ctrl+drag: leave twins behind at the start positions. Restore
+        // the dragged elements first so the undo snapshot is pristine.
+        restoreSessionOriginals(pointerSession);
         pushUndoSnapshot();
-        var twin = JSON.parse(pointerSession.original);
-        twin.id = newElementId();
-        appState.elements.push(twin);
+        for (var t = 0; t < pointerSession.originals.length; t++) {
+          var twin = JSON.parse(pointerSession.originals[t]);
+          twin.id = newElementId();
+          appState.elements.push(twin);
+        }
         pointerSession.duplicated = true;
       }
     }
-    applyMove(pointerSession.element, JSON.parse(pointerSession.original), dx, dy);
+    // Every selected element shifts by the same delta, so the group
+    // keeps its shape.
+    for (var m = 0; m < pointerSession.elements.length; m++) {
+      applyMove(pointerSession.elements[m], JSON.parse(pointerSession.originals[m]), dx, dy);
+    }
     renderAllElements();
   } else if (pointerSession.mode === 'resize') {
     pointerSession.resized = true;
@@ -4698,21 +4893,39 @@ canvasSvg.addEventListener('pointerup', function (event) {
       });
       renderAllElements();
     }
+  } else if (pointerSession.mode === 'marquee') {
+    // Everything the band touched joins the selection
+    var swept = elementsIntersecting(
+      pointerSession.startX, pointerSession.startY, point.x, point.y
+    ).map(function (el) { return el.id; });
+    setSelection(pointerSession.basis.concat(swept));
+    renderSelection();
+    updateCanvasHint();
   } else if (pointerSession.mode === 'move' && pointerSession.moved) {
     if (pointerSession.duplicated) {
-      // Ctrl+drag duplicate: the undo snapshot was taken when the twin
-      // was dropped, so one undo removes the whole duplication.
+      // Ctrl+drag duplicate: the undo snapshot was taken when the twins
+      // were dropped, so one undo removes the whole duplication.
       renderAllElements();
     } else {
-      // Commit the move as one undo step
-      var movedElement = JSON.stringify(pointerSession.element);
-      var originalElement = pointerSession.original;
-      applyMove(pointerSession.element, JSON.parse(originalElement), 0, 0);  // restore
+      // Commit the move of the whole selection as ONE undo step
+      var movedJson = pointerSession.elements.map(function (el) { return JSON.stringify(el); });
+      restoreSessionOriginals(pointerSession);
       pushUndoSnapshot();
-      var restored = findElementById(pointerSession.element.id);
-      Object.assign(restored, JSON.parse(movedElement));
+      for (var v = 0; v < pointerSession.elements.length; v++) {
+        var moved = JSON.parse(movedJson[v]);
+        var at = indexOfElementId(moved.id);
+        if (at !== -1) { appState.elements[at] = moved; }
+      }
+      setSelection(appState.selectedIds);   // re-point at the fresh objects
       renderAllElements();
     }
+  } else if (pointerSession.mode === 'move' && !pointerSession.moved &&
+             pointerSession.elements.length > 1) {
+    // A click without a drag inside a group narrows the selection down
+    // to just that one element, PowerPoint-style.
+    setSelection([pointerSession.clickedId]);
+    renderSelection();
+    updateCanvasHint();
   } else if (pointerSession.mode === 'resize' && pointerSession.resized) {
     // Commit the resize as one undo step: swap the pre-resize element
     // back in, snapshot, then re-apply the resized version. A full
@@ -4830,6 +5043,34 @@ function drawPreviewArrow(x1, y1, x2, y2) {
     stroke: '#E64A19', 'stroke-width': 2, 'stroke-dasharray': '5 4'
   }));
 }
+function drawPreviewMarquee(x1, y1, x2, y2) {
+  clearPreview();
+  previewLayer.appendChild(makeNode('rect', {
+    x: Math.min(x1, x2), y: Math.min(y1, y2),
+    width: Math.abs(x2 - x1), height: Math.abs(y2 - y1),
+    fill: '#66BB6A', 'fill-opacity': 0.10,
+    stroke: '#2E7D32', 'stroke-width': 1.3,
+    'stroke-dasharray': '5 4', rx: 3, 'pointer-events': 'none'
+  }));
+}
+
+/* Any element whose bounding box overlaps the band is caught — a touch
+   is enough, so a student doesn't have to enclose a wide brace fully. */
+function elementsIntersecting(x1, y1, x2, y2) {
+  var left = Math.min(x1, x2), right = Math.max(x1, x2);
+  var top = Math.min(y1, y2), bottom = Math.max(y1, y2);
+  if (right - left < 4 && bottom - top < 4) { return []; }   // stray click
+  var caught = [];
+  for (var i = 0; i < appState.elements.length; i++) {
+    var box = elementBounds(appState.elements[i]);
+    if (box.x <= right && box.x + box.w >= left &&
+        box.y <= bottom && box.y + box.h >= top) {
+      caught.push(appState.elements[i]);
+    }
+  }
+  return caught;
+}
+
 function clearPreview() {
   while (previewLayer.firstChild) { previewLayer.removeChild(previewLayer.firstChild); }
 }
@@ -5717,7 +5958,7 @@ for (var t = 0; t < toolButtons.length; t++) {
       for (var b = 0; b < toolButtons.length; b++) { toolButtons[b].classList.remove('active'); }
       button.classList.add('active');
       appState.activeTool = button.getAttribute('data-tool');
-      appState.selectedId = null;
+      clearSelection();
       renderSelection();
       canvasSvg.setAttribute('class', 'tool-' + appState.activeTool);
       updateCanvasHint();
@@ -5732,14 +5973,12 @@ for (var s = 0; s < swatchButtons.length; s++) {
       for (var w = 0; w < swatchButtons.length; w++) { swatchButtons[w].classList.remove('active'); }
       swatch.classList.add('active');
       appState.activeColor = swatch.getAttribute('data-color');
-      // Recolour the selected bar if there is one
-      if (appState.selectedId) {
-        var selected = findElementById(appState.selectedId);
-        if (selected && selected.type === 'bar') {
-          pushUndoSnapshot();
-          selected.color = appState.activeColor;
-          renderAllElements();
-        }
+      // Recolour every selected bar — one swatch click can repaint a group
+      var selectedBars = selectedElements().filter(function (el) { return el.type === 'bar'; });
+      if (selectedBars.length) {
+        pushUndoSnapshot();
+        selectedBars.forEach(function (bar) { bar.color = appState.activeColor; });
+        renderAllElements();
       }
     });
   })(swatchButtons[s]);
@@ -5778,10 +6017,19 @@ document.addEventListener('keydown', function (event) {
     performUndo();
     return;
   }
+  if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'a') {
+    // Select every drawn element, but only while the canvas is the
+    // focus — otherwise leave the browser's own Select All alone.
+    if (appState.elements.length && canvasFrame.contains(event.target)) {
+      event.preventDefault();
+      performSelectAll();
+    }
+    return;
+  }
   if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'c') {
     // Only intercept when a drawn element is selected — otherwise let
     // the browser copy page text as normal.
-    if (appState.selectedId) {
+    if (appState.selectedIds.length) {
       event.preventDefault();
       performCopy();
     }
@@ -5795,23 +6043,21 @@ document.addEventListener('keydown', function (event) {
     return;
   }
   if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'd') {
-    if (appState.selectedId) {
+    if (appState.selectedIds.length) {
       event.preventDefault();
       performDuplicate();
     }
     return;
   }
-  if ((event.key === 'Delete' || event.key === 'Backspace') && appState.selectedId) {
+  if ((event.key === 'Delete' || event.key === 'Backspace') && appState.selectedIds.length) {
     event.preventDefault();
-    pushUndoSnapshot();
-    appState.elements = appState.elements.filter(function (el) { return el.id !== appState.selectedId; });
-    appState.selectedId = null;
-    renderAllElements();
+    performDeleteSelection();
     return;
   }
-  if (event.key === 'Escape' && appState.selectedId) {
-    appState.selectedId = null;
+  if (event.key === 'Escape' && appState.selectedIds.length) {
+    clearSelection();
     renderSelection();
+    updateCanvasHint();
     return;
   }
   if ((event.key === 'F2' || event.key === 'Enter') && appState.selectedId) {
@@ -5821,15 +6067,18 @@ document.addEventListener('keydown', function (event) {
     if (editTarget) { beginTextEdit(editTarget, null); }
     return;
   }
-  if (NUDGE_KEYS[event.key] && appState.selectedId) {
-    // Arrow keys nudge one grid step; Ctrl+arrow nudges 1px (PowerPoint)
+  if (NUDGE_KEYS[event.key] && appState.selectedIds.length) {
+    // Arrow keys nudge one grid step; Ctrl+arrow nudges 1px (PowerPoint).
+    // The whole selection moves together.
     event.preventDefault();
-    var nudgeTarget = findElementById(appState.selectedId);
-    if (nudgeTarget) {
+    var nudgeTargets = selectedElements();
+    if (nudgeTargets.length) {
       var fine = event.ctrlKey || event.metaKey;
       var stepSize = fine ? 1 : GRID_SNAP;
-      maybeSnapshotForNudge(nudgeTarget.id);
-      offsetElementInPlace(nudgeTarget, NUDGE_KEYS[event.key][0] * stepSize, NUDGE_KEYS[event.key][1] * stepSize, fine);
+      maybeSnapshotForNudge(appState.selectedIds.join(','));
+      for (var n = 0; n < nudgeTargets.length; n++) {
+        offsetElementInPlace(nudgeTargets[n], NUDGE_KEYS[event.key][0] * stepSize, NUDGE_KEYS[event.key][1] * stepSize, fine);
+      }
       renderAllElements();
     }
     return;
