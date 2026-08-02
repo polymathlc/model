@@ -2387,6 +2387,169 @@ function generateFraction() {
   };
 }
 
+/* ── P3 Questions: ACS (Junior) 2025 End-of-Year Exam, Section C ──
+   The five problem sums (Q26–30) from the last segment of the paper.
+   Unlike the template concepts these are FIXED questions, so the
+   generator deals them out of a shuffled deck instead of randomising
+   names and numbers. */
+var P3_QUESTIONS = [
+  {
+    text: 'There were 2560 visitors in Bird Paradise. There were 1756 adults and the rest of the visitors were children. Among the children, there were 358 boys. How many girls were there in Bird Paradise?',
+    answerStatement: 'There were 446 girls in Bird Paradise.',
+    expectedModel:
+      'A part–whole model in TWO levels. Level 1: one bar for all 2560 visitors, split into an "adults" part labelled 1756 and a "children" part. ' +
+      'Level 2: the children part split into a "boys" part labelled 358 and a "girls" part carrying the "?". ' +
+      'A brace must span the whole visitors bar and be labelled 2560. ' +
+      'Accept two separate bars (a visitors bar, then a children bar underneath) as long as the children bar clearly matches the children part.',
+    workedSteps: [
+      'Children = 2560 − 1756 = 804',
+      'Girls = 804 − 358 = 446'
+    ],
+    reference: [
+      refText({ x: 118, y: 68, text: 'Visitors', anchor: 'end', bold: true }),
+      refBar({ x: 130, y: 45, units: 1, unitWidth: 425, color: '#FFCDD2' }),
+      refBar({ x: 555, y: 45, units: 1, unitWidth: 195 }),
+      refText({ x: 342, y: 72, text: 'adults 1756', size: 14, anchor: 'middle' }),
+      refText({ x: 652, y: 72, text: 'children', size: 14, anchor: 'middle' }),
+      refBraceH({ x1: 130, x2: 750, y: 91, text: '2560', below: true }),
+      refText({ x: 338, y: 198, text: 'Children', anchor: 'end', bold: true }),
+      refBar({ x: 350, y: 175, units: 1, unitWidth: 133, color: '#BBDEFB' }),
+      refBar({ x: 483, y: 175, units: 1, unitWidth: 167 }),
+      refText({ x: 416, y: 202, text: 'boys 358', size: 14, anchor: 'middle' }),
+      refText({ x: 566, y: 202, text: 'girls ?', size: 14, anchor: 'middle', bold: true }),
+      refBraceH({ x1: 350, x2: 650, y: 175, text: '804', below: false }),
+      refText({ x: 130, y: 272, text: '2560 − 1756 = 804 children  →  804 − 358 = 446 girls', size: 15, bold: true, color: '#2E7D32' })
+    ]
+  },
+  {
+    text: 'Mr Samad bought some bags of flour for his restaurant. He used 16 bags of flour each day from Monday to Friday and 22 bags of flour each day on Saturday and Sunday. He had 120 bags of flour left. How many bags of flour did he buy at first?',
+    answerStatement: 'Mr Samad bought 244 bags of flour at first.',
+    expectedModel:
+      'ONE long bar for all the flour bought at first, split into parts: the Monday-to-Friday flour (5 equal units of 16, or one part labelled 80), ' +
+      'the weekend flour (2 equal units of 22, or one part labelled 44) and a "left" part labelled 120. ' +
+      'A brace must span the WHOLE bar and carry the "?" (the number of bags at first). ' +
+      'The model must show whole = used + left, i.e. 80 + 44 + 120.',
+    workedSteps: [
+      'Monday to Friday: 16 × 5 = 80 bags',
+      'Saturday and Sunday: 22 × 2 = 44 bags',
+      'Used altogether: 80 + 44 = 124 bags',
+      'At first: 124 + 120 = 244 bags'
+    ],
+    reference: [
+      refText({ x: 118, y: 148, text: 'Flour', anchor: 'end', bold: true }),
+      refBar({ x: 130, y: 125, units: 5, unitWidth: 41, color: '#FFCDD2' }),
+      refBar({ x: 335, y: 125, units: 2, unitWidth: 56, color: '#FFE0B2' }),
+      refBar({ x: 447, y: 125, units: 1, unitWidth: 303 }),
+      refText({ x: 232, y: 112, text: '5 days × 16', size: 12, anchor: 'middle', color: '#8A8A8A' }),
+      refText({ x: 391, y: 112, text: '2 days × 22', size: 12, anchor: 'middle', color: '#8A8A8A' }),
+      refText({ x: 598, y: 112, text: 'left', size: 12, anchor: 'middle', color: '#8A8A8A' }),
+      refText({ x: 232, y: 152, text: '80', size: 14, anchor: 'middle' }),
+      refText({ x: 391, y: 152, text: '44', size: 14, anchor: 'middle' }),
+      refText({ x: 598, y: 152, text: '120', size: 14, anchor: 'middle' }),
+      refBraceH({ x1: 130, x2: 750, y: 171, text: '?', below: true }),
+      refText({ x: 130, y: 252, text: '80 + 44 = 124 used  →  124 + 120 = 244 bags at first', size: 15, bold: true, color: '#2E7D32' })
+    ]
+  },
+  {
+    text: '4 whistles and 5 caps cost $55. 4 whistles and 2 caps cost $34. What is the cost of 4 caps?',
+    answerStatement: '4 caps cost $28.',
+    expectedModel:
+      'TWO bars compared. Bar 1: a "4 whistles" part followed by 5 equal cap units, braced and labelled $55. ' +
+      'Bar 2: an IDENTICAL "4 whistles" part followed by 2 equal cap units, braced and labelled $34. ' +
+      'The whistle parts must be the same size in both bars and all cap units equal. ' +
+      'The extra 3 cap units must be marked as the difference $55 − $34 = $21, leading to 1 cap = $7 and the "?" on the cost of 4 caps.',
+    workedSteps: [
+      'Both sets have the same 4 whistles, so the difference is caps only: 5 − 2 = 3 caps',
+      '3 caps = $55 − $34 = $21',
+      '1 cap = $21 ÷ 3 = $7',
+      '4 caps = 4 × $7 = $28'
+    ],
+    reference: [
+      refText({ x: 118, y: 78, text: 'Set A', anchor: 'end', bold: true }),
+      refBar({ x: 130, y: 50, units: 1, unitWidth: 200, color: '#BBDEFB' }),
+      refText({ x: 230, y: 78, text: '4 whistles', size: 13, anchor: 'middle' }),
+      refBar({ x: 330, y: 50, units: 5, unitWidth: 55 }),
+      refText({ x: 467, y: 42, text: '5 caps', size: 12, anchor: 'middle', color: '#8A8A8A' }),
+      refBraceH({ x1: 130, x2: 605, y: 96, text: '$55', below: true }),
+      refText({ x: 118, y: 198, text: 'Set B', anchor: 'end', bold: true }),
+      refBar({ x: 130, y: 170, units: 1, unitWidth: 200, color: '#BBDEFB' }),
+      refText({ x: 230, y: 198, text: '4 whistles', size: 13, anchor: 'middle' }),
+      refBar({ x: 330, y: 170, units: 2, unitWidth: 55 }),
+      refBraceH({ x1: 440, x2: 605, y: 170, text: '3 caps = $21', below: false }),
+      refBraceH({ x1: 130, x2: 440, y: 216, text: '$34', below: true }),
+      refText({ x: 130, y: 278, text: '1 cap = $21 ÷ 3 = $7  →  4 caps = 4 × $7 = $28', size: 15, bold: true, color: '#2E7D32' })
+    ]
+  },
+  {
+    text: 'Ali, Charles and Sam weigh a total of 140 kg. Ali weighs 3 times as heavy as Charles. Sam is 15 kg lighter than Charles. How much does Charles weigh?',
+    answerStatement: 'Charles weighs 31 kg.',
+    expectedModel:
+      'THREE bars drawn with the SAME unit size. Charles = 1 unit (this unit is the "?"). Ali = 3 equal units. ' +
+      'Sam = 1 unit with 15 kg cut off, shown crossed out or as a marked gap at the end of his unit. ' +
+      'A brace (or clear label) must show that all three bars together total 140 kg. ' +
+      'The model must make visible that 5 units − 15 kg = 140 kg, so 5 units = 155 kg and 1 unit = 31 kg.',
+    workedSteps: [
+      'Let Charles be 1 unit → Ali = 3 units, Sam = 1 unit − 15 kg',
+      'Total: 5 units − 15 kg = 140 kg',
+      '5 units = 140 + 15 = 155 kg',
+      'Charles = 1 unit = 155 ÷ 5 = 31 kg'
+    ],
+    reference: [
+      refText({ x: 118, y: 68, text: 'Ali', anchor: 'end', bold: true }),
+      refBar({ x: 130, y: 45, units: 3, unitWidth: 110, color: '#BBDEFB' }),
+      refText({ x: 118, y: 133, text: 'Charles', anchor: 'end', bold: true }),
+      refBar({ x: 130, y: 110, units: 1, unitWidth: 110 }),
+      refText({ x: 185, y: 138, text: '?', size: 16, anchor: 'middle', bold: true }),
+      refText({ x: 118, y: 198, text: 'Sam', anchor: 'end', bold: true }),
+      refBar({ x: 130, y: 175, units: 1, unitWidth: 57 }),
+      refBar({ x: 187, y: 175, units: 1, unitWidth: 53, color: '#FFCDD2', crossed: [0] }),
+      refText({ x: 213, y: 167, text: 'take away 15 kg', size: 12, anchor: 'middle', color: '#8A8A8A' }),
+      refBraceSide({ x: 480, y1: 45, y2: 221, text: '140 kg' }),
+      refText({ x: 130, y: 278, text: '5 units − 15 = 140  →  5 units = 155  →  1 unit = 31 kg', size: 15, bold: true, color: '#2E7D32' })
+    ]
+  },
+  {
+    text: 'Rosie and Tricia had an equal number of cookies at first. After Rosie bought another 13 cookies and Tricia gave away 5 cookies to her brother, Rosie had three times as many cookies as Tricia. How many cookies did each of them have at first?',
+    answerStatement: 'Each of them had 14 cookies at first.',
+    expectedModel:
+      'An AFTER-comparison model: Tricia (after) = 1 unit, Rosie (after) = 3 equal units. ' +
+      'Because they started EQUAL, the gap between the two bars must be labelled 13 + 5 = 18, so the extra 2 units = 18 and 1 unit = 9. ' +
+      'The "?" is the equal starting amount, found as 1 unit + 5 = 14. ' +
+      'Also accept a before-and-after drawing showing two equal starting bars with a "+13" change on Rosie and a "−5" change on Tricia, as long as the ×3 relationship after the changes is shown.',
+    workedSteps: [
+      'After the changes: Tricia = 1 unit, Rosie = 3 units',
+      'They started equal, so the gap = 13 + 5 = 18, which is 2 units',
+      '2 units = 18 → 1 unit = 18 ÷ 2 = 9',
+      'At first: 9 + 5 = 14 cookies each'
+    ],
+    reference: [
+      refText({ x: 118, y: 83, text: 'Rosie (after)', anchor: 'end', bold: true }),
+      refBar({ x: 130, y: 60, units: 3, unitWidth: 120, color: '#FFE0B2' }),
+      refText({ x: 118, y: 158, text: 'Tricia (after)', anchor: 'end', bold: true }),
+      refBar({ x: 130, y: 135, units: 1, unitWidth: 120 }),
+      refBraceH({ x1: 250, x2: 490, y: 181, text: 'gap = 13 + 5 = 18', below: true }),
+      refText({ x: 130, y: 262, text: '2 units = 18  →  1 unit = 9  →  at first: 9 + 5 = 14 each', size: 15, bold: true, color: '#2E7D32' })
+    ]
+  }
+];
+
+var p3Deck = [];
+
+function generateP3Question() {
+  // Deal from a shuffled deck so students see all five questions
+  // before any repeats.
+  if (!p3Deck.length) {
+    p3Deck = P3_QUESTIONS.slice();
+    for (var i = p3Deck.length - 1; i > 0; i--) {
+      var j = randomInt(0, i);
+      var swap = p3Deck[i];
+      p3Deck[i] = p3Deck[j];
+      p3Deck[j] = swap;
+    }
+  }
+  return Object.assign({}, p3Deck.pop());
+}
+
 /* ── Concept registry ────────────────────────────────────────────── */
 var CONCEPTS = [
   { id: 'comparison',  icon: '⚖', label: 'Comparison',          generate: generateComparison,
@@ -2405,6 +2568,8 @@ var CONCEPTS = [
     goal: 'Ages grow together, so the difference is constant. Build the future bars in units.' },
   { id: 'fraction',    icon: '½', label: 'Fraction',            generate: generateFraction,
     goal: 'Split ONE bar into equal units matching the denominator. Shade the spent part.' },
+  { id: 'p3exam',      icon: '★', label: 'P3 Questions',        generate: generateP3Question,
+    goal: 'Real problem sums from a P3 End-of-Year paper (Section C). Read carefully, identify the concept yourself, then draw the model.' },
   { id: 'mixed',       icon: '⚄', label: 'Mixed — surprise me!', generate: null,
     goal: 'Identify the concept yourself, then draw the matching model.' },
   { id: 'custom',      icon: '✎', label: 'My Own Question',   generate: null,
@@ -4327,8 +4492,9 @@ function loadNewScenario() {
   var scenario;
 
   if (appState.currentConceptId === 'mixed') {
-    // Pick any real concept at random, but don't tell the student which
-    var realConcepts = CONCEPTS.filter(function (c) { return c.generate; });
+    // Pick any real concept template at random, but don't tell the
+    // student which. Fixed exam papers (P3 Questions) stay out of the mix.
+    var realConcepts = CONCEPTS.filter(function (c) { return c.generate && c.id !== 'p3exam'; });
     var chosen = realConcepts[randomInt(0, realConcepts.length - 1)];
     scenario = chosen.generate();
     scenario.conceptLabel = chosen.label;
