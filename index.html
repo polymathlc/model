@@ -2461,9 +2461,12 @@ function generateFraction() {
    these are FIXED questions, so the generator deals them out of a
    shuffled deck instead of randomising names and numbers.
 
+   Only Section C (problem sums) questions belong in this bank.
+
    Papers currently loaded:
    - ACS (Junior) 2025 End-of-Year — Section C problem sums (Q26–30)
-   - Ai Tong 2025 End-of-Year — Section C problem sums (Q22–26) */
+   - Ai Tong 2025 End-of-Year — Section C problem sums (Q22–26)
+   - ACS (Primary) 2025 End-of-Year — Section C problem sums (Q21–25) */
 var P3_QUESTIONS = [
   {
     exam: { paper: 'ACS (Junior) 2025', section: 'C', qnum: 26, marks: 3 },
@@ -2716,6 +2719,124 @@ var P3_QUESTIONS = [
       refText({ x: 237, y: 182, text: 'sold 54', size: 13, anchor: 'middle' }),
       refBraceH({ x1: 344, x2: 630, y: 201, text: '2 units', below: true }),
       refText({ x: 130, y: 272, text: '1 unit = 90 − 54 = 36  →  unsold = 3 × 36 = 108  →  baked = 108 + 90 + 54 = 252', size: 14, bold: true, color: '#2E7D32' })
+    ]
+  },
+  {
+    exam: { paper: 'ACS (Primary) 2025', section: 'C', qnum: 21, marks: 3 },
+    text: 'A stadium had 1845 spectators in the morning. In the afternoon, 976 more spectators entered the stadium, while 1258 spectators left after the morning event. How many spectators were in the stadium by the end of the day?',
+    answerStatement: 'There were 1563 spectators in the stadium by the end of the day.',
+    expectedModel:
+      'A before-and-after model. Start with a bar of 1845 (morning). Add a joined part of 976 for the spectators who entered, making 1845 + 976 = 2821. ' +
+      'Then take away 1258 — crossed out or shown as a separate part — leaving the "?" part. ' +
+      'The model must make visible that the answer is 2821 − 1258 = 1563. ' +
+      'Subtracting 976 instead of adding it is a marking error.',
+    workedSteps: [
+      'After more spectators entered: 1845 + 976 = 2821',
+      'After spectators left: 2821 − 1258 = 1563'
+    ],
+    reference: [
+      refText({ x: 118, y: 68, text: 'Morning', anchor: 'end', bold: true }),
+      refBar({ x: 130, y: 45, units: 1, unitWidth: 400, color: '#BBDEFB' }),
+      refText({ x: 330, y: 72, text: '1845', size: 14, anchor: 'middle' }),
+      refBar({ x: 530, y: 45, units: 1, unitWidth: 212, color: '#C8E6C9' }),
+      refText({ x: 636, y: 72, text: 'entered 976', size: 13, anchor: 'middle' }),
+      refBraceH({ x1: 130, x2: 742, y: 91, text: '2821', below: true }),
+      refText({ x: 118, y: 188, text: 'End of day', anchor: 'end', bold: true }),
+      refBar({ x: 130, y: 165, units: 1, unitWidth: 339 }),
+      refBar({ x: 469, y: 165, units: 1, unitWidth: 273, color: '#FFCDD2', crossed: [0] }),
+      refText({ x: 605, y: 157, text: 'left 1258', size: 12, anchor: 'middle', color: '#8A8A8A' }),
+      refBraceH({ x1: 130, x2: 469, y: 211, text: '?', below: true }),
+      refText({ x: 130, y: 272, text: '1845 + 976 = 2821  →  2821 − 1258 = 1563', size: 15, bold: true, color: '#2E7D32' })
+    ]
+  },
+  {
+    exam: { paper: 'ACS (Primary) 2025', section: 'C', qnum: 22, marks: 3 },
+    text: 'A factory produces 112 cartons of juice every day. Each carton contains 6 packets of juice. The packets are then packed equally into 8 delivery boxes. How many packets of juice are in each delivery box?',
+    answerStatement: 'There are 84 packets of juice in each delivery box.',
+    expectedModel:
+      'Two steps. First multiply to find the total packets: 112 cartons × 6 packets = 672 packets. ' +
+      'Then divide equally into 8 boxes: 672 ÷ 8 = 84. ' +
+      'A bar of 672 split into 8 EQUAL units with "?" on one unit is a correct model. ' +
+      'Dividing 112 by 8 before multiplying, or forgetting the ×6 step, is a marking error.',
+    workedSteps: [
+      'Total packets: 112 × 6 = 672',
+      'Packets per box: 672 ÷ 8 = 84'
+    ],
+    reference: [
+      refText({ x: 118, y: 128, text: 'Packets', anchor: 'end', bold: true }),
+      refBar({ x: 130, y: 105, units: 8, unitWidth: 76 }),
+      refText({ x: 168, y: 132, text: '?', size: 16, anchor: 'middle', bold: true }),
+      refText({ x: 438, y: 92, text: '8 equal delivery boxes', size: 12, anchor: 'middle', color: '#8A8A8A' }),
+      refBraceH({ x1: 130, x2: 738, y: 151, text: '672', below: true }),
+      refText({ x: 130, y: 240, text: '112 × 6 = 672  →  672 ÷ 8 = 84 packets per box', size: 15, bold: true, color: '#2E7D32' })
+    ]
+  },
+  {
+    exam: { paper: 'ACS (Primary) 2025', section: 'C', qnum: 23, marks: 3 },
+    text: 'Fazil and Ramesh each bought a strawberry cake during recess. Fazil ate 1/4 of his cake during recess. During little bites, Ramesh ate 2/5 of his cake and Fazil ate another 5/12 of his cake. (a) What fraction of Ramesh’s cake was left? (b) What fraction of Fazil’s cake was eaten?',
+    answerStatement: '(a) 3/5 of Ramesh’s cake was left. (b) 2/3 of Fazil’s cake was eaten.',
+    expectedModel:
+      'Part (a): Ramesh ate only 2/5, so the fraction left is 1 − 2/5 = 3/5. A bar in 5 equal units with 2 shaded is a correct model. ' +
+      'Part (b): Fazil ate 1/4 and then another 5/12, so 1/4 + 5/12 = 3/12 + 5/12 = 8/12 = 2/3. The answer must be given in its simplest form. ' +
+      'A bar in 12 equal units with 3 + 5 shaded is a correct model. ' +
+      'Mixing the two boys’ fractions together is a marking error — they had separate cakes.',
+    workedSteps: [
+      '(a) Ramesh: 1 − 2/5 = 3/5 left',
+      '(b) Fazil: 1/4 = 3/12',
+      '(b) 3/12 + 5/12 = 8/12 = 2/3 eaten'
+    ],
+    reference: [
+      refText({ x: 118, y: 68, text: 'Ramesh', anchor: 'end', bold: true }),
+      refBar({ x: 130, y: 45, units: 5, unitWidth: 96, shaded: [0, 1] }),
+      refText({ x: 226, y: 33, text: 'ate 2/5', size: 12, anchor: 'middle', color: '#8A8A8A' }),
+      refBraceH({ x1: 322, x2: 610, y: 91, text: 'left = 3/5', below: true }),
+      refText({ x: 118, y: 188, text: 'Fazil', anchor: 'end', bold: true }),
+      refBar({ x: 130, y: 165, units: 12, unitWidth: 40, shaded: [0, 1, 2, 3, 4, 5, 6, 7] }),
+      refText({ x: 190, y: 153, text: '1/4 = 3/12', size: 12, anchor: 'middle', color: '#8A8A8A' }),
+      refText({ x: 430, y: 153, text: '+ 5/12', size: 12, anchor: 'middle', color: '#8A8A8A' }),
+      refBraceH({ x1: 130, x2: 450, y: 211, text: 'eaten = 8/12 = 2/3', below: true }),
+      refText({ x: 130, y: 272, text: '(a) 1 − 2/5 = 3/5    (b) 3/12 + 5/12 = 8/12 = 2/3', size: 15, bold: true, color: '#2E7D32' })
+    ]
+  },
+  {
+    exam: { paper: 'ACS (Primary) 2025', section: 'C', qnum: 24, marks: 3 },
+    text: 'Jia Wei spent a total of 2 h 35 min revising for his English and Mathematics tests. He spent 42 min revising for his English test. He finished revising for his Mathematics test at 20 20. What time did he start revising for his Mathematics test?',
+    answerStatement: 'Jia Wei started revising for his Mathematics test at 18 27.',
+    expectedModel:
+      'Two steps. First find the Mathematics revision time: 2 h 35 min − 42 min = 1 h 53 min. ' +
+      'Then count back from the finishing time: 20 20 − 1 h 53 min = 18 27. ' +
+      'A time line or a part–whole bar (English 42 min + Maths ? = 2 h 35 min) is a correct model. ' +
+      'The answer must be written in 24-hour clock. Counting back the full 2 h 35 min instead of 1 h 53 min is a marking error.',
+    workedSteps: [
+      'Maths revision time: 2 h 35 min − 42 min = 1 h 53 min',
+      'Count back from 20 20: 20 20 − 1 h = 19 20',
+      '19 20 − 53 min = 18 27'
+    ],
+    reference: [
+      refText({ x: 118, y: 128, text: 'Revision', anchor: 'end', bold: true }),
+      refBar({ x: 130, y: 105, units: 1, unitWidth: 165, color: '#BBDEFB' }),
+      refBar({ x: 295, y: 105, units: 1, unitWidth: 445 }),
+      refText({ x: 212, y: 132, text: '42 min', size: 13, anchor: 'middle' }),
+      refText({ x: 517, y: 132, text: 'Maths = ?', size: 14, anchor: 'middle', bold: true }),
+      refText({ x: 212, y: 92, text: 'English', size: 12, anchor: 'middle', color: '#8A8A8A' }),
+      refBraceH({ x1: 130, x2: 740, y: 151, text: '2 h 35 min', below: true }),
+      refText({ x: 130, y: 240, text: '2 h 35 min − 42 min = 1 h 53 min  →  20 20 − 1 h 53 min = 18 27', size: 15, bold: true, color: '#2E7D32' })
+    ]
+  },
+  {
+    exam: { paper: 'ACS (Primary) 2025', section: 'C', qnum: 25, marks: 4 },
+    text: 'A piece of wire was bent into a rectangle measuring 13 cm by 5 cm. (a) What was the area of the rectangle? (b) The same piece of wire was bent into a square. What was the area of the square?',
+    answerStatement: '(a) The area of the rectangle is 65 cm². (b) The area of the square is 81 cm².',
+    expectedModel:
+      'Part (a): area of the rectangle = 13 × 5 = 65 cm². ' +
+      'Part (b): the wire keeps the same length, so its length is the perimeter of the rectangle: 13 + 5 + 13 + 5 = 36 cm. ' +
+      'Bent into a square, each side is 36 ÷ 4 = 9 cm, so the area is 9 × 9 = 81 cm². ' +
+      'Reusing the area 65 cm² in part (b), or forgetting that the wire length equals the perimeter, is a marking error. Answers need the unit cm².',
+    workedSteps: [
+      '(a) Area of rectangle = 13 × 5 = 65 cm²',
+      '(b) Length of wire = perimeter = 13 + 5 + 13 + 5 = 36 cm',
+      '(b) Side of square = 36 ÷ 4 = 9 cm',
+      '(b) Area of square = 9 × 9 = 81 cm²'
     ]
   }
 ];
