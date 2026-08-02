@@ -2468,7 +2468,15 @@ function generateFraction() {
    - Ai Tong 2025 End-of-Year — Section C problem sums (Q22–26)
    - ACS (Primary) 2025 End-of-Year — Section C problem sums (Q21–25)
    - Henry Park 2025 End-of-Year — Section C problem sums (Q27–30)
-   - Maha Bodhi 2025 End-of-Year — Section C problem sums (Q21–25) */
+   - Maha Bodhi 2025 End-of-Year — Section C problem sums (Q21–25)
+   - Nan Hua 2025 End-of-Year — Section C problem sums (Q26–28)
+   - Northland 2025 End-of-Year — Section C problem sums (Q21–25)
+   - Raffles Girls' 2025 End-of-Year — Section C problem sums (Q21–25)
+   - Rosyth 2025 End-of-Year — Section C problem sums (Q23–26)
+   - Nanyang 2025 End-of-Year — LAQ problem sums (Q24–28)
+
+   Where a question relies on a bar graph or diagram, the figures are
+   written into the question text so it stands alone on screen. */
 var P3_QUESTIONS = [
   {
     exam: { paper: 'ACS (Junior) 2025', section: 'C', qnum: 26, marks: 3 },
@@ -3055,6 +3063,509 @@ var P3_QUESTIONS = [
       refText({ x: 570, y: 192, text: 'more 208', size: 13, anchor: 'middle' }),
       refBraceH({ x1: 130, x2: 669, y: 211, text: '?', below: true }),
       refText({ x: 130, y: 272, text: '(a) 325 − 179 = 146 blue    (b) 179 + 208 = 387 red', size: 15, bold: true, color: '#2E7D32' })
+    ]
+  },
+
+  /* ── Nan Hua 2025, Section C (Q26–28, 10 marks) ─────────────── */
+  {
+    exam: { paper: 'Nan Hua 2025', section: 'C', qnum: 26, marks: 3 },
+    text: 'A bar graph shows a total of 390 students from Primary 1 to Primary 4 who wear spectacles. The number of Primary 3 girls is not shown. Boys who wear spectacles: Primary 1 — 35, Primary 2 — 30, Primary 3 — 60, Primary 4 — 80. Girls who wear spectacles: Primary 1 — 25, Primary 2 — 55, Primary 3 — not shown, Primary 4 — 65. (a) How many more boys from Primary 4 than Primary 1 wear spectacles? (b) How many girls from Primary 3 wear spectacles?',
+    answerStatement: '(a) 45 more boys. (b) 40 Primary 3 girls wear spectacles.',
+    expectedModel:
+      'Part (a): read both boys’ bars and subtract: 80 − 35 = 45. ' +
+      'Part (b): add every bar that IS shown and subtract from the 390 total. ' +
+      'Shown: Primary 1 (35 + 25 = 60), Primary 2 (30 + 55 = 85), Primary 4 (80 + 65 = 145), Primary 3 boys (60). ' +
+      'These come to 350, so Primary 3 girls = 390 − 350 = 40. ' +
+      'Forgetting the Primary 3 boys, or comparing girls instead of boys in (a), is a marking error.',
+    workedSteps: [
+      '(a) 80 − 35 = 45 more boys',
+      '(b) Primary 1: 35 + 25 = 60; Primary 2: 30 + 55 = 85; Primary 4: 80 + 65 = 145',
+      '(b) Shown altogether: 60 + 85 + 145 + 60 = 350',
+      '(b) Primary 3 girls = 390 − 350 = 40'
+    ]
+  },
+  {
+    exam: { paper: 'Nan Hua 2025', section: 'C', qnum: 27, marks: 4 },
+    text: 'There were 28 more boys than girls in the library at first. 6 girls left the library and 4 boys entered the library. (a) How many more boys than girls were there in the library in the end? (b) There were a total of 96 students in the library in the end. How many girls were there in the library in the end?',
+    answerStatement: '(a) 38 more boys. (b) There were 29 girls in the library in the end.',
+    expectedModel:
+      'Part (a): the gap grows twice — 4 boys joining widens it by 4, and 6 girls leaving widens it by 6. So 28 + 4 + 6 = 38. ' +
+      'Part (b): draw two bars for the end, with the boys’ bar 38 longer than the girls’ bar and the pair braced as 96. ' +
+      'Taking the 38 off the total leaves two equal girls’ bars: 96 − 38 = 58, so 1 bar = 58 ÷ 2 = 29 girls. ' +
+      'Subtracting instead of adding the 6 girls who left in part (a) is a marking error — losing girls makes the gap bigger, not smaller.',
+    workedSteps: [
+      '(a) 4 boys joined and 6 girls left, so the gap grows by 10',
+      '(a) 28 + 4 + 6 = 38 more boys',
+      '(b) 96 − 38 = 58 (two equal girls’ shares)',
+      '(b) Girls = 58 ÷ 2 = 29'
+    ],
+    reference: [
+      refText({ x: 20, y: 30, text: 'In the end…', size: 13, bold: true, color: '#8A8A8A' }),
+      refText({ x: 118, y: 88, text: 'Girls', anchor: 'end', bold: true }),
+      refBar({ x: 130, y: 65, units: 1, unitWidth: 290 }),
+      refText({ x: 275, y: 92, text: '?', size: 16, anchor: 'middle', bold: true }),
+      refText({ x: 118, y: 168, text: 'Boys', anchor: 'end', bold: true }),
+      refBar({ x: 130, y: 145, units: 1, unitWidth: 290, color: '#BBDEFB' }),
+      refBar({ x: 420, y: 145, units: 1, unitWidth: 190, color: '#FFE0B2' }),
+      refText({ x: 515, y: 172, text: '38 more', size: 13, anchor: 'middle' }),
+      refBraceSide({ x: 640, y1: 65, y2: 191, text: '96' }),
+      refText({ x: 130, y: 262, text: '28 + 4 + 6 = 38  →  96 − 38 = 58  →  girls = 29', size: 15, bold: true, color: '#2E7D32' })
+    ]
+  },
+  {
+    exam: { paper: 'Nan Hua 2025', section: 'C', qnum: 28, marks: 3 },
+    text: 'There are 16 bicycles and tricycles in a shop. There are 38 wheels altogether. A bicycle has 2 wheels and a tricycle has 3 wheels. How many bicycles are there?',
+    answerStatement: 'There are 10 bicycles.',
+    expectedModel:
+      'Assume every one of the 16 cycles is a bicycle: 16 × 2 = 32 wheels. ' +
+      'That is 38 − 32 = 6 wheels short. Each tricycle adds 1 extra wheel, so there are 6 tricycles. ' +
+      'Bicycles = 16 − 6 = 10. ' +
+      'A bar of 16 units of 2 wheels, with 6 units carrying one extra wheel each, is a correct model. ' +
+      'Answering 6 (the number of tricycles) instead of 10 is a marking error.',
+    workedSteps: [
+      'If all 16 were bicycles: 16 × 2 = 32 wheels',
+      'Extra wheels needed: 38 − 32 = 6',
+      'Each tricycle adds 1 extra wheel, so tricycles = 6',
+      'Bicycles = 16 − 6 = 10'
+    ]
+  },
+
+  /* ── Nanyang 2025, LAQ / Section C (Q24–28, 17 marks) ────────── */
+  {
+    exam: { paper: 'Nanyang 2025', section: 'C', qnum: 24, marks: 3 },
+    text: 'A bar graph shows the number of books the students read during the school holiday. Class 4A — boys 20, girls 22. Class 4B — boys 38, girls 14. Class 4C — boys 12, girls 26. (a) How many books did the 4C boys read during the holiday? (b) How many more books did the boys read than the girls in 4B? (c) How many books did the Primary 4 girls read altogether?',
+    answerStatement: '(a) 12 books. (b) 24 more books. (c) 62 books altogether.',
+    expectedModel:
+      'Part (a): read the 4C boys’ bar directly — 12. ' +
+      'Part (b): 38 − 14 = 24 (subtract within class 4B only). ' +
+      'Part (c): add all three girls’ bars — 22 + 14 + 26 = 62. ' +
+      'Including any boys’ bar in part (c), or comparing across different classes in part (b), is a marking error.',
+    workedSteps: [
+      '(a) 4C boys = 12 books',
+      '(b) 38 − 14 = 24 more books',
+      '(c) 22 + 14 + 26 = 62 books'
+    ]
+  },
+  {
+    exam: { paper: 'Nanyang 2025', section: 'C', qnum: 25, marks: 3 },
+    text: 'Ali has 2982 stamps. Ali has 61 stamps more than James. Raj has 621 stamps more than James. How many stamps does Raj have?',
+    answerStatement: 'Raj has 3542 stamps.',
+    expectedModel:
+      'James is the link between the two comparisons, so find James first. ' +
+      'Ali has 61 MORE than James, so James = 2982 − 61 = 2921. ' +
+      'Raj has 621 more than James, so Raj = 2921 + 621 = 3542. ' +
+      'Three bars with James shortest, Ali’s bar 61 longer and Raj’s bar 621 longer, all measured from James, is a correct model. ' +
+      'Adding 61 to Ali, or measuring Raj from Ali instead of James, is a marking error.',
+    workedSteps: [
+      'James = 2982 − 61 = 2921',
+      'Raj = 2921 + 621 = 3542'
+    ],
+    reference: [
+      refText({ x: 118, y: 68, text: 'James', anchor: 'end', bold: true }),
+      refBar({ x: 130, y: 45, units: 1, unitWidth: 400 }),
+      refText({ x: 330, y: 72, text: '2921', size: 14, anchor: 'middle' }),
+      refText({ x: 118, y: 133, text: 'Ali', anchor: 'end', bold: true }),
+      refBar({ x: 130, y: 110, units: 1, unitWidth: 400, color: '#BBDEFB' }),
+      refBar({ x: 530, y: 110, units: 1, unitWidth: 40, color: '#FFE0B2' }),
+      refText({ x: 585, y: 137, text: '61', size: 12, anchor: 'start' }),
+      refText({ x: 118, y: 198, text: 'Raj', anchor: 'end', bold: true }),
+      refBar({ x: 130, y: 175, units: 1, unitWidth: 400, color: '#C8E6C9' }),
+      refBar({ x: 530, y: 175, units: 1, unitWidth: 85, color: '#FFE0B2' }),
+      refText({ x: 630, y: 202, text: '621', size: 12, anchor: 'start' }),
+      refText({ x: 130, y: 262, text: '2982 − 61 = 2921 (James)  →  2921 + 621 = 3542 (Raj)', size: 15, bold: true, color: '#2E7D32' })
+    ]
+  },
+  {
+    exam: { paper: 'Nanyang 2025', section: 'C', qnum: 26, marks: 3 },
+    text: 'Jenssen and Aldric have 30 marbles altogether. Jenssen has 5 times as many marbles as Aldric. How many more marbles does Jenssen have than Aldric?',
+    answerStatement: 'Jenssen has 20 more marbles than Aldric.',
+    expectedModel:
+      'TWO bars with the SAME unit size: Aldric = 1 unit, Jenssen = 5 units, so 6 units = 30 and 1 unit = 5. ' +
+      'The question asks HOW MANY MORE, so the answer is the difference of 5 − 1 = 4 units = 20. ' +
+      'The difference must be braced and marked "?" in the model. ' +
+      'Answering 25 (Jenssen’s own total) instead of the difference is a marking error.',
+    workedSteps: [
+      'Aldric = 1 unit, Jenssen = 5 units, so 6 units = 30',
+      '1 unit = 30 ÷ 6 = 5',
+      'Difference = 5 − 1 = 4 units = 4 × 5 = 20'
+    ],
+    reference: [
+      refText({ x: 118, y: 68, text: 'Aldric', anchor: 'end', bold: true }),
+      refBar({ x: 130, y: 45, units: 1, unitWidth: 110 }),
+      refText({ x: 118, y: 148, text: 'Jenssen', anchor: 'end', bold: true }),
+      refBar({ x: 130, y: 125, units: 5, unitWidth: 110, color: '#BBDEFB' }),
+      refBraceH({ x1: 240, x2: 680, y: 171, text: '? = 4 units', below: true }),
+      refBraceSide({ x: 700, y1: 45, y2: 171, text: '30' }),
+      refText({ x: 130, y: 250, text: '6 units = 30  →  1 unit = 5  →  ? = 4 × 5 = 20', size: 15, bold: true, color: '#2E7D32' })
+    ]
+  },
+  {
+    exam: { paper: 'Nanyang 2025', section: 'C', qnum: 27, marks: 4 },
+    text: 'Jonathan paid $50 to the cashier for 8 identical files and received a change of $18. (a) How much did each file cost? (b) Jonathan returned to the shop and bought a pen. The file cost 4 times as much as the pen. How much did he spend on the 8 files and the pen?',
+    answerStatement: '(a) Each file cost $4. (b) He spent $33 on the 8 files and the pen.',
+    expectedModel:
+      'Part (a): the 8 files cost $50 − $18 = $32, so one file = $32 ÷ 8 = $4. ' +
+      'A bar of $32 split into 8 equal units is a correct model. ' +
+      'Part (b): the FILE is 4 times the pen, so the pen = $4 ÷ 4 = $1. ' +
+      'Total spent = $32 + $1 = $33. ' +
+      'Multiplying the file price by 4 to get the pen (instead of dividing), or forgetting the change in part (a), is a marking error.',
+    workedSteps: [
+      '(a) Cost of 8 files: $50 − $18 = $32',
+      '(a) Each file: $32 ÷ 8 = $4',
+      '(b) Pen: $4 ÷ 4 = $1',
+      '(b) Total: $32 + $1 = $33'
+    ],
+    reference: [
+      refText({ x: 118, y: 88, text: '8 files', anchor: 'end', bold: true }),
+      refBar({ x: 130, y: 65, units: 8, unitWidth: 70 }),
+      refText({ x: 165, y: 92, text: '?', size: 15, anchor: 'middle', bold: true }),
+      refBraceH({ x1: 130, x2: 690, y: 111, text: '$50 − $18 = $32', below: true }),
+      refText({ x: 118, y: 198, text: 'Pen', anchor: 'end', bold: true }),
+      refBar({ x: 130, y: 175, units: 1, unitWidth: 70, color: '#C8E6C9' }),
+      refText({ x: 220, y: 200, text: '= one file ÷ 4 = $1', size: 13, anchor: 'start', color: '#8A8A8A' }),
+      refText({ x: 130, y: 262, text: '$32 ÷ 8 = $4 each  →  pen $1  →  $32 + $1 = $33', size: 15, bold: true, color: '#2E7D32' })
+    ]
+  },
+  {
+    exam: { paper: 'Nanyang 2025', section: 'C', qnum: 28, marks: 4 },
+    text: 'Sarah had 1150 mℓ of milk. Her sister had 870 mℓ of milk. (a) How much more milk did Sarah have than her sister? (b) How much milk should Sarah give to her sister so that both have the same amount of milk in the end?',
+    answerStatement: '(a) 280 mℓ more. (b) Sarah should give her sister 140 mℓ.',
+    expectedModel:
+      'Part (a): 1150 − 870 = 280 mℓ. Two bars with the difference marked is a correct model. ' +
+      'Part (b): this is a MAKING EQUAL problem — the difference must be split into two halves, so Sarah gives away 280 ÷ 2 = 140 mℓ. ' +
+      'The model must show the difference of 280 divided into two equal parts. ' +
+      'Giving away the whole 280 mℓ is a marking error: that would just swap who has more.',
+    workedSteps: [
+      '(a) 1150 − 870 = 280 mℓ more',
+      '(b) Half the difference: 280 ÷ 2 = 140 mℓ',
+      'Check: 1150 − 140 = 1010 and 870 + 140 = 1010'
+    ],
+    reference: [
+      refText({ x: 118, y: 68, text: 'Sarah', anchor: 'end', bold: true }),
+      refBar({ x: 130, y: 45, units: 1, unitWidth: 460, color: '#BBDEFB' }),
+      refBar({ x: 590, y: 45, units: 2, unitWidth: 56, color: '#FFE0B2' }),
+      refText({ x: 360, y: 72, text: '1150 mℓ', size: 14, anchor: 'middle' }),
+      refText({ x: 118, y: 148, text: 'Sister', anchor: 'end', bold: true }),
+      refBar({ x: 130, y: 125, units: 1, unitWidth: 460 }),
+      refText({ x: 360, y: 152, text: '870 mℓ', size: 14, anchor: 'middle' }),
+      refBraceH({ x1: 590, x2: 702, y: 171, text: 'difference 280 = two halves of 140', below: true }),
+      refText({ x: 130, y: 250, text: '1150 − 870 = 280  →  give 280 ÷ 2 = 140 mℓ', size: 15, bold: true, color: '#2E7D32' })
+    ]
+  },
+
+  /* ── Northland 2025, Section C (Q21–25, 15 marks) ────────────── */
+  {
+    exam: { paper: 'Northland 2025', section: 'C', qnum: 21, marks: 3 },
+    text: 'Jason bought a book and a file. The book cost $11.85 and the file cost $9.55. He gave the cashier $50. (a) How much did the book and file cost in total? (b) How much change did Jason receive?',
+    answerStatement: '(a) $21.40 in total. (b) Jason received $28.60 change.',
+    expectedModel:
+      'Part (a): $11.85 + $9.55 = $21.40. ' +
+      'Part (b): $50 − $21.40 = $28.60. ' +
+      'A bar of $50 split into a "spent $21.40" part and a "change ?" part is a correct model. ' +
+      'Money answers should be written to two decimal places.',
+    workedSteps: [
+      '(a) $11.85 + $9.55 = $21.40',
+      '(b) $50.00 − $21.40 = $28.60'
+    ],
+    reference: [
+      refText({ x: 118, y: 128, text: '$50', anchor: 'end', bold: true }),
+      refBar({ x: 130, y: 105, units: 1, unitWidth: 265, color: '#FFCDD2' }),
+      refBar({ x: 395, y: 105, units: 1, unitWidth: 355 }),
+      refText({ x: 262, y: 132, text: 'spent $21.40', size: 13, anchor: 'middle' }),
+      refText({ x: 572, y: 132, text: 'change ?', size: 14, anchor: 'middle', bold: true }),
+      refBraceH({ x1: 130, x2: 750, y: 151, text: '$50.00', below: true }),
+      refText({ x: 130, y: 240, text: '$11.85 + $9.55 = $21.40  →  $50 − $21.40 = $28.60', size: 15, bold: true, color: '#2E7D32' })
+    ]
+  },
+  {
+    exam: { paper: 'Northland 2025', section: 'C', qnum: 22, marks: 3 },
+    text: 'Joanna has 3 pieces of ribbon. Ribbon A is 150 cm long. It is 3 times the length of Ribbon B. Ribbon C is 26 cm long. (a) What is the length of Ribbon B? (b) How much longer is Ribbon B than Ribbon C?',
+    answerStatement: '(a) Ribbon B is 50 cm long. (b) Ribbon B is 24 cm longer than Ribbon C.',
+    expectedModel:
+      'Part (a): Ribbon A is 3 times Ribbon B, so Ribbon B = 150 ÷ 3 = 50 cm. ' +
+      'Draw Ribbon A as 3 equal units and Ribbon B as 1 unit of the same size. ' +
+      'Part (b): 50 − 26 = 24 cm. ' +
+      'Multiplying 150 by 3 instead of dividing is a marking error — Ribbon B is the shorter one.',
+    workedSteps: [
+      '(a) Ribbon B = 150 ÷ 3 = 50 cm',
+      '(b) 50 − 26 = 24 cm longer'
+    ],
+    reference: [
+      refText({ x: 118, y: 68, text: 'Ribbon A', anchor: 'end', bold: true }),
+      refBar({ x: 130, y: 45, units: 3, unitWidth: 160, color: '#BBDEFB' }),
+      refBraceH({ x1: 130, x2: 610, y: 91, text: '150 cm', below: true }),
+      refText({ x: 118, y: 158, text: 'Ribbon B', anchor: 'end', bold: true }),
+      refBar({ x: 130, y: 135, units: 1, unitWidth: 160 }),
+      refText({ x: 210, y: 162, text: '50', size: 14, anchor: 'middle' }),
+      refText({ x: 118, y: 218, text: 'Ribbon C', anchor: 'end', bold: true }),
+      refBar({ x: 130, y: 195, units: 1, unitWidth: 83, color: '#C8E6C9' }),
+      refBraceH({ x1: 213, x2: 290, y: 241, text: '? = 24', below: true }),
+      refText({ x: 130, y: 285, text: '150 ÷ 3 = 50 cm  →  50 − 26 = 24 cm', size: 15, bold: true, color: '#2E7D32' })
+    ]
+  },
+  {
+    exam: { paper: 'Northland 2025', section: 'C', qnum: 23, marks: 3 },
+    text: 'Mr Tan took 2 h 35 min to drive from Town A to Town B. Mr Ahmad took 50 min more than Mr Tan to drive the same distance. (a) How long did Mr Ahmad take to drive from Town A to Town B? (b) Mr Ahmad started driving from Town A to Town B at 3.15 p.m. What time would he reach Town B?',
+    answerStatement: '(a) Mr Ahmad took 3 h 25 min. (b) He would reach Town B at 6.40 p.m.',
+    expectedModel:
+      'Part (a): 2 h 35 min + 50 min = 2 h 85 min = 3 h 25 min (remember 60 min = 1 h). ' +
+      'Part (b): count on from 3.15 p.m. — add 3 h to reach 6.15 p.m., then add 25 min to reach 6.40 p.m. ' +
+      'A time line is a good way to show the working. ' +
+      'Writing 2 h 85 min as the final answer, or using Mr Tan’s time in part (b), is a marking error.',
+    workedSteps: [
+      '(a) 2 h 35 min + 50 min = 2 h 85 min = 3 h 25 min',
+      '(b) 3.15 p.m. + 3 h = 6.15 p.m.',
+      '(b) 6.15 p.m. + 25 min = 6.40 p.m.'
+    ]
+  },
+  {
+    exam: { paper: 'Northland 2025', section: 'C', qnum: 24, marks: 3 },
+    text: '6 similar bottles and 1 cup contain 1315 mℓ of water. 1 bottle and 1 cup contain 490 mℓ of water. (a) What is the volume of water in 5 bottles? (b) What is the volume of water in 1 bottle?',
+    answerStatement: '(a) 5 bottles contain 825 mℓ. (b) 1 bottle contains 165 mℓ.',
+    expectedModel:
+      'Draw the two statements as two bars, one above the other, lining up the cup in both. ' +
+      'Both bars contain exactly 1 cup, so the cup cancels out when you subtract: the difference between the bars is 6 − 1 = 5 bottles. ' +
+      'Part (a): 1315 − 490 = 825 mℓ for 5 bottles. ' +
+      'Part (b): 825 ÷ 5 = 165 mℓ for 1 bottle. ' +
+      'Trying to find the cup first, or dividing 1315 by 6, is a marking error.',
+    workedSteps: [
+      'Both statements include 1 cup, so subtracting removes the cup',
+      '(a) 5 bottles = 1315 − 490 = 825 mℓ',
+      '(b) 1 bottle = 825 ÷ 5 = 165 mℓ'
+    ],
+    reference: [
+      refText({ x: 118, y: 68, text: '6 bottles + cup', anchor: 'end', bold: true }),
+      refBar({ x: 130, y: 45, units: 6, unitWidth: 85, color: '#BBDEFB' }),
+      refBar({ x: 640, y: 45, units: 1, unitWidth: 60, color: '#FFE0B2' }),
+      refText({ x: 670, y: 37, text: 'cup', size: 11, anchor: 'middle', color: '#8A8A8A' }),
+      refBraceH({ x1: 130, x2: 700, y: 91, text: '1315 mℓ', below: true }),
+      refText({ x: 118, y: 168, text: '1 bottle + cup', anchor: 'end', bold: true }),
+      refBar({ x: 130, y: 145, units: 1, unitWidth: 85, color: '#BBDEFB' }),
+      refBar({ x: 215, y: 145, units: 1, unitWidth: 60, color: '#FFE0B2' }),
+      refBraceH({ x1: 130, x2: 275, y: 191, text: '490 mℓ', below: true }),
+      refText({ x: 130, y: 262, text: '1315 − 490 = 825 (5 bottles)  →  825 ÷ 5 = 165 mℓ', size: 15, bold: true, color: '#2E7D32' })
+    ]
+  },
+  {
+    exam: { paper: 'Northland 2025', section: 'C', qnum: 25, marks: 3 },
+    text: 'Alicia and Peter have 576 stickers altogether. Alicia has 120 fewer stickers than Peter. How many stickers does Alicia have?',
+    answerStatement: 'Alicia has 228 stickers.',
+    expectedModel:
+      'TWO bars braced together as 576, with Peter’s bar 120 longer than Alicia’s. ' +
+      'Take the extra 120 off the total to leave two EQUAL bars: 576 − 120 = 456. ' +
+      'Alicia = 456 ÷ 2 = 228. ' +
+      'The model must show the 120 as a marked extra piece on Peter’s bar, and dividing 576 by 2 without first removing the 120 is a marking error.',
+    workedSteps: [
+      'Remove the difference: 576 − 120 = 456',
+      'Two equal shares: 456 ÷ 2 = 228 (Alicia)',
+      'Check: Peter = 228 + 120 = 348, and 228 + 348 = 576'
+    ],
+    reference: [
+      refText({ x: 118, y: 68, text: 'Alicia', anchor: 'end', bold: true }),
+      refBar({ x: 130, y: 45, units: 1, unitWidth: 330 }),
+      refText({ x: 295, y: 72, text: '?', size: 16, anchor: 'middle', bold: true }),
+      refText({ x: 118, y: 158, text: 'Peter', anchor: 'end', bold: true }),
+      refBar({ x: 130, y: 135, units: 1, unitWidth: 330, color: '#BBDEFB' }),
+      refBar({ x: 460, y: 135, units: 1, unitWidth: 174, color: '#FFCDD2' }),
+      refText({ x: 547, y: 162, text: '120 more', size: 13, anchor: 'middle' }),
+      refBraceSide({ x: 660, y1: 45, y2: 181, text: '576' }),
+      refText({ x: 130, y: 262, text: '576 − 120 = 456  →  456 ÷ 2 = 228 stickers', size: 15, bold: true, color: '#2E7D32' })
+    ]
+  },
+
+  /* ── Raffles Girls' 2025, Section C (Q21–25, 20 marks) ───────── */
+  {
+    exam: { paper: 'Raffles Girls’ 2025', section: 'C', qnum: 21, marks: 4 },
+    text: 'Mary read 137 pages of her book on the first day. She read 34 fewer pages on the second day. (a) How many pages did Mary read on the second day? (b) There were 424 pages in the book. Mary completed reading the book on the third day. How many pages did she read on the third day?',
+    answerStatement: '(a) 103 pages on the second day. (b) 184 pages on the third day.',
+    expectedModel:
+      'Part (a): 137 − 34 = 103 pages. Two bars with the second day’s bar 34 shorter is a correct model. ' +
+      'Part (b): add the first two days (137 + 103 = 240) and subtract from the whole book: 424 − 240 = 184. ' +
+      'A bar of 424 split into three parts — 137, 103 and "?" — shows this clearly. ' +
+      'Subtracting only the first day from 424 is a marking error.',
+    workedSteps: [
+      '(a) 137 − 34 = 103 pages',
+      '(b) First two days: 137 + 103 = 240 pages',
+      '(b) Third day: 424 − 240 = 184 pages'
+    ],
+    reference: [
+      refText({ x: 118, y: 128, text: 'Book', anchor: 'end', bold: true }),
+      refBar({ x: 130, y: 105, units: 1, unitWidth: 200, color: '#BBDEFB' }),
+      refBar({ x: 330, y: 105, units: 1, unitWidth: 150, color: '#C8E6C9' }),
+      refBar({ x: 480, y: 105, units: 1, unitWidth: 268 }),
+      refText({ x: 230, y: 132, text: 'day 1: 137', size: 13, anchor: 'middle' }),
+      refText({ x: 405, y: 132, text: 'day 2: 103', size: 13, anchor: 'middle' }),
+      refText({ x: 614, y: 132, text: 'day 3: ?', size: 14, anchor: 'middle', bold: true }),
+      refBraceH({ x1: 130, x2: 748, y: 151, text: '424 pages', below: true }),
+      refText({ x: 130, y: 240, text: '137 − 34 = 103  →  424 − 240 = 184 pages', size: 15, bold: true, color: '#2E7D32' })
+    ]
+  },
+  {
+    exam: { paper: 'Raffles Girls’ 2025', section: 'C', qnum: 22, marks: 4 },
+    text: 'Doughnuts are sold at these prices: 1 doughnut for $2, or 4 doughnuts for $7. (a) Mei Ling bought 3 doughnuts. How much did she pay? (b) Raja bought 9 doughnuts. What was the least amount of money he paid?',
+    answerStatement: '(a) Mei Ling paid $6. (b) The least Raja paid was $16.',
+    expectedModel:
+      'Part (a): 3 doughnuts is fewer than a 4-pack, so she pays singly: 3 × $2 = $6. ' +
+      'Part (b): to pay the LEAST, buy as many $7 4-packs as possible. Two 4-packs give 8 doughnuts for $7 + $7 = $14, then 1 single doughnut costs $2. Total $16. ' +
+      'Buying all 9 singly costs 9 × $2 = $18, which is more, so it is not the least. ' +
+      'Any answer above $16 has missed the cheaper 4-pack deal.',
+    workedSteps: [
+      '(a) 3 × $2 = $6',
+      '(b) 8 doughnuts as two 4-packs: $7 + $7 = $14',
+      '(b) 1 more doughnut: $2',
+      '(b) Least total: $14 + $2 = $16'
+    ]
+  },
+  {
+    exam: { paper: 'Raffles Girls’ 2025', section: 'C', qnum: 23, marks: 4 },
+    text: 'Michelle arrived at the cinema at 3:15 p.m. She waited for 25 minutes for the movie to start. The movie ended at 6 p.m. (Draw a timeline to show your working.) (a) How long was the movie? (b) She took a bus home after the movie. The bus ride took 35 minutes. She reached home at 7:25 p.m. What time did she board the bus?',
+    answerStatement: '(a) The movie was 2 h 20 min long. (b) She boarded the bus at 6.50 p.m.',
+    expectedModel:
+      'Part (a): the movie STARTED at 3:15 p.m. + 25 min = 3:40 p.m., and ended at 6:00 p.m. ' +
+      'From 3:40 p.m. to 6:00 p.m. is 2 h 20 min. Forgetting the 25-minute wait and measuring from 3:15 p.m. is a marking error. ' +
+      'Part (b): work BACKWARDS from 7:25 p.m. by 35 min to get 6:50 p.m. ' +
+      'A timeline is the expected way to show both parts.',
+    workedSteps: [
+      '(a) Movie started: 3:15 p.m. + 25 min = 3:40 p.m.',
+      '(a) 3:40 p.m. to 6:00 p.m. = 2 h 20 min',
+      '(b) 7:25 p.m. − 35 min = 6:50 p.m.'
+    ]
+  },
+  {
+    exam: { paper: 'Raffles Girls’ 2025', section: 'C', qnum: 24, marks: 4 },
+    text: 'A bar graph shows the number of items a charity collected over 4 days. Mugs — Monday 15, Tuesday 20, Wednesday 10, Thursday 30. Bottles — Monday 10, Tuesday 5, Wednesday 25, Thursday 15. (a) On which day were 5 more mugs than bottles collected? (b) How many fewer bottles were collected on Tuesday than on Wednesday? (c) What was the total number of items collected on Thursday? (d) What was the total number of mugs collected over the 4 days?',
+    answerStatement: '(a) Monday. (b) 20 fewer bottles. (c) 45 items. (d) 75 mugs.',
+    expectedModel:
+      'Part (a): test each day. Monday 15 − 10 = 5, so the answer is Monday. ' +
+      'Part (b): 25 − 5 = 20 fewer bottles on Tuesday. ' +
+      'Part (c): Thursday means BOTH bars added: 30 + 15 = 45. ' +
+      'Part (d): add only the mug bars: 15 + 20 + 10 + 30 = 75. ' +
+      'Mixing mugs and bottles in part (d), or giving only one bar in part (c), is a marking error.',
+    workedSteps: [
+      '(a) Monday: 15 − 10 = 5 more mugs than bottles',
+      '(b) 25 − 5 = 20 fewer bottles',
+      '(c) 30 + 15 = 45 items',
+      '(d) 15 + 20 + 10 + 30 = 75 mugs'
+    ]
+  },
+  {
+    exam: { paper: 'Raffles Girls’ 2025', section: 'C', qnum: 25, marks: 4 },
+    text: 'Jane bought 112 pens for a party. She packed them equally into 8 boxes. (a) How many pens were there in each box? (b) The 112 pens were a mix of blue, red and green. There were twice as many blue pens as red pens. There were 8 more green pens than red pens. How many red pens were there?',
+    answerStatement: '(a) 14 pens in each box. (b) There were 26 red pens.',
+    expectedModel:
+      'Part (a): 112 ÷ 8 = 14 pens per box. ' +
+      'Part (b): draw three bars with the SAME unit size — red = 1 unit, blue = 2 units, green = 1 unit + 8. ' +
+      'Take the extra 8 off the total: 112 − 8 = 104, which is 4 equal units. ' +
+      'So 1 unit = 104 ÷ 4 = 26 red pens. ' +
+      'Dividing 112 by 4 without first removing the 8 is a marking error. (Check: red 26, blue 52, green 34 add to 112.)',
+    workedSteps: [
+      '(a) 112 ÷ 8 = 14 pens per box',
+      '(b) Red = 1 unit, blue = 2 units, green = 1 unit + 8, so 4 units + 8 = 112',
+      '(b) 4 units = 112 − 8 = 104',
+      '(b) Red = 1 unit = 104 ÷ 4 = 26'
+    ],
+    reference: [
+      refText({ x: 118, y: 58, text: 'Red', anchor: 'end', bold: true }),
+      refBar({ x: 130, y: 38, units: 1, unitWidth: 180 }),
+      refText({ x: 220, y: 64, text: '?', size: 15, anchor: 'middle', bold: true }),
+      refText({ x: 118, y: 128, text: 'Blue', anchor: 'end', bold: true }),
+      refBar({ x: 130, y: 108, units: 2, unitWidth: 180, color: '#BBDEFB' }),
+      refText({ x: 118, y: 198, text: 'Green', anchor: 'end', bold: true }),
+      refBar({ x: 130, y: 178, units: 1, unitWidth: 180, color: '#C8E6C9' }),
+      refBar({ x: 310, y: 178, units: 1, unitWidth: 62, color: '#FFCDD2' }),
+      refText({ x: 341, y: 170, text: '8', size: 12, anchor: 'middle', color: '#8A8A8A' }),
+      refBraceSide({ x: 500, y1: 38, y2: 220, text: '112' }),
+      refText({ x: 130, y: 272, text: '112 − 8 = 104  →  104 ÷ 4 = 26 red pens', size: 15, bold: true, color: '#2E7D32' })
+    ]
+  },
+
+  /* ── Rosyth 2025, Section C (Q23–26, 14 marks) ───────────────── */
+  {
+    exam: { paper: 'Rosyth 2025', section: 'C', qnum: 23, marks: 3 },
+    text: 'Some similar rubber balls, toy cars and a teddy bear were placed on identical weighing scales. 10 rubber balls balance a 140 g weight together with 3 rubber balls. 9 rubber balls balance 1 toy car. 1 teddy bear balances 3 toy cars. (a) What is the mass of 1 rubber ball? (b) What is the mass of the teddy bear?',
+    answerStatement: '(a) 1 rubber ball is 20 g. (b) The teddy bear is 540 g.',
+    expectedModel:
+      'Part (a): the same 3 balls sit on both sides, so cancel them: 10 − 3 = 7 balls balance 140 g. ' +
+      'One ball = 140 ÷ 7 = 20 g. ' +
+      'Part (b): 1 toy car = 9 balls = 9 × 20 = 180 g. The teddy bear = 3 cars = 3 × 180 = 540 g. ' +
+      'Dividing 140 by 10 (forgetting to cancel the 3 balls on the other side) is a marking error.',
+    workedSteps: [
+      '(a) Cancel 3 balls from both sides: 7 balls = 140 g',
+      '(a) 1 ball = 140 ÷ 7 = 20 g',
+      '(b) 1 toy car = 9 balls = 9 × 20 = 180 g',
+      '(b) Teddy bear = 3 × 180 = 540 g'
+    ],
+    reference: [
+      refText({ x: 118, y: 68, text: '10 balls', anchor: 'end', bold: true }),
+      refBar({ x: 130, y: 45, units: 7, unitWidth: 60, color: '#BBDEFB' }),
+      refBar({ x: 550, y: 45, units: 3, unitWidth: 60, shaded: [0, 1, 2] }),
+      refText({ x: 118, y: 148, text: '140 g + 3 balls', anchor: 'end', bold: true }),
+      refBar({ x: 130, y: 125, units: 1, unitWidth: 420, color: '#FFE0B2' }),
+      refBar({ x: 550, y: 125, units: 3, unitWidth: 60, shaded: [0, 1, 2] }),
+      refText({ x: 340, y: 152, text: '140 g', size: 14, anchor: 'middle' }),
+      refBraceH({ x1: 130, x2: 550, y: 191, text: '7 balls = 140 g', below: true }),
+      refText({ x: 130, y: 262, text: '1 ball = 20 g  →  car = 9 × 20 = 180 g  →  teddy = 3 × 180 = 540 g', size: 14, bold: true, color: '#2E7D32' })
+    ]
+  },
+  {
+    exam: { paper: 'Rosyth 2025', section: 'C', qnum: 24, marks: 3 },
+    text: 'A figure is made up of 4 identical squares placed in a single row. The length of the figure is 12 cm. (a) What is the length of one square? (b) What is the area of the figure?',
+    answerStatement: '(a) One square has sides of 3 cm. (b) The area of the figure is 36 cm².',
+    expectedModel:
+      'Part (a): the 4 squares lie side by side across the 12 cm length, so each side = 12 ÷ 4 = 3 cm. ' +
+      'Part (b): the figure is 12 cm long and 3 cm tall (the height is one square’s side), so the area = 12 × 3 = 36 cm². ' +
+      'Equivalently, one square is 3 × 3 = 9 cm² and 4 × 9 = 36 cm². ' +
+      'Answers need the unit cm².',
+    workedSteps: [
+      '(a) 12 ÷ 4 = 3 cm for one square',
+      '(b) Area = 12 × 3 = 36 cm² (or 4 squares × 9 cm² each)'
+    ]
+  },
+  {
+    exam: { paper: 'Rosyth 2025', section: 'C', qnum: 25, marks: 4 },
+    text: '1402 visitors went to the zoo on Tuesday. 564 of them were adults and the rest were children. (a) How many children were at the zoo? (b) Among the 564 adults, there were twice as many women as men. How many of them were women?',
+    answerStatement: '(a) There were 838 children. (b) There were 376 women.',
+    expectedModel:
+      'Part (a): a part–whole bar of 1402 split into "adults 564" and "children ?" gives 1402 − 564 = 838. ' +
+      'Part (b): work inside the 564 adults only. Men = 1 unit, women = 2 units, so 3 units = 564 and 1 unit = 188. ' +
+      'Women = 2 units = 2 × 188 = 376. ' +
+      'Splitting the 1402 total instead of the 564 adults, or giving the men’s 188 as the answer, is a marking error.',
+    workedSteps: [
+      '(a) Children = 1402 − 564 = 838',
+      '(b) Men = 1 unit, women = 2 units, so 3 units = 564',
+      '(b) 1 unit = 564 ÷ 3 = 188 (men)',
+      '(b) Women = 2 × 188 = 376'
+    ],
+    reference: [
+      refText({ x: 118, y: 68, text: 'Visitors', anchor: 'end', bold: true }),
+      refBar({ x: 130, y: 45, units: 1, unitWidth: 249, color: '#FFCDD2' }),
+      refBar({ x: 379, y: 45, units: 1, unitWidth: 371 }),
+      refText({ x: 254, y: 72, text: 'adults 564', size: 13, anchor: 'middle' }),
+      refText({ x: 564, y: 72, text: 'children ?', size: 14, anchor: 'middle', bold: true }),
+      refBraceH({ x1: 130, x2: 750, y: 91, text: '1402', below: true }),
+      refText({ x: 118, y: 188, text: 'Adults', anchor: 'end', bold: true }),
+      refBar({ x: 130, y: 165, units: 1, unitWidth: 83, color: '#C8E6C9' }),
+      refBar({ x: 213, y: 165, units: 2, unitWidth: 83, color: '#BBDEFB' }),
+      refText({ x: 171, y: 192, text: 'men', size: 12, anchor: 'middle' }),
+      refText({ x: 296, y: 192, text: 'women ?', size: 13, anchor: 'middle', bold: true }),
+      refBraceH({ x1: 130, x2: 379, y: 211, text: '564', below: true }),
+      refText({ x: 130, y: 272, text: '(a) 1402 − 564 = 838    (b) 564 ÷ 3 = 188  →  2 × 188 = 376', size: 14, bold: true, color: '#2E7D32' })
+    ]
+  },
+  {
+    exam: { paper: 'Rosyth 2025', section: 'C', qnum: 26, marks: 4 },
+    text: 'Some lamp posts were placed in a straight row at an equal distance apart. The distance between the 1st and the 5th lamp post was 36 m. The distance between the 2nd and the last lamp post was 144 m. What was the total number of lamp posts along the straight row?',
+    answerStatement: 'There were 18 lamp posts along the straight row.',
+    expectedModel:
+      'Count GAPS, not posts. From the 1st to the 5th post there are 5 − 1 = 4 gaps, so 1 gap = 36 ÷ 4 = 9 m. ' +
+      'From the 2nd to the last post there are 144 ÷ 9 = 16 gaps. ' +
+      'Counting 16 gaps forward from the 2nd post lands on post number 2 + 16 = 18, so there are 18 lamp posts in total. ' +
+      'Using 5 gaps for the first distance, or forgetting to count from the 2nd post rather than the 1st, is a marking error.',
+    workedSteps: [
+      '1st to 5th post = 4 gaps, so 1 gap = 36 ÷ 4 = 9 m',
+      '2nd to last post = 144 ÷ 9 = 16 gaps',
+      'Last post number = 2 + 16 = 18',
+      'Total lamp posts = 18'
     ]
   }
 ];
