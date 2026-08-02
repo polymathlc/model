@@ -1675,6 +1675,11 @@ input, button, select, textarea { font-family: inherit; }
         <span class="tool-label">Equal</span>
       </button>
 
+      <button class="tool-btn" data-tool="align" type="button" title="Alignment guide — a faint grey dotted line showing that edges line up (L)">
+        <svg viewBox="0 0 24 24" opacity="0.55"><path d="M6 2v20" stroke-dasharray="1.5 3.5" stroke-linecap="round"/><path d="M18 2v20" stroke-dasharray="1.5 3.5" stroke-linecap="round"/></svg>
+        <span class="tool-label">Align</span>
+      </button>
+
       <button class="tool-btn" data-tool="pen" type="button" title="Freehand pen — sketch anything by hand (P)">
         <svg viewBox="0 0 24 24"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg>
         <span class="tool-label">Pen</span>
@@ -3587,6 +3592,334 @@ var P3_QUESTIONS = [
       'Last post number = 2 + 16 = 18',
       'Total lamp posts = 18'
     ]
+  },
+
+  /* ── St Hilda's 2025, Section C (Q26–28, 10 marks) ───────────── */
+  {
+    exam: { paper: 'St Hilda’s 2025', section: 'C', qnum: 26, marks: 3 },
+    text: 'Timmy has $100. He spends $29.90 on a pizza and $12.50 on a movie ticket. He saves the rest of the money. How much money does he save?',
+    answerStatement: 'Timmy saves $57.60.',
+    expectedModel:
+      'A part–whole bar of $100 split into three parts: pizza $29.90, movie ticket $12.50, and the savings "?". ' +
+      'Add the two spends first: $29.90 + $12.50 = $42.40, then $100 − $42.40 = $57.60. ' +
+      'Subtracting one price at a time ($100 − $29.90 − $12.50) is equally correct. ' +
+      'Money answers should be written to two decimal places.',
+    workedSteps: [
+      'Total spent: $29.90 + $12.50 = $42.40',
+      'Saved: $100 − $42.40 = $57.60'
+    ],
+    reference: [
+      refText({ x: 118, y: 128, text: 'Timmy', anchor: 'end', bold: true }),
+      refBar({ x: 130, y: 105, units: 1, unitWidth: 185, color: '#FFCDD2' }),
+      refBar({ x: 315, y: 105, units: 1, unitWidth: 78, color: '#FFE0B2' }),
+      refBar({ x: 393, y: 105, units: 1, unitWidth: 357 }),
+      refText({ x: 222, y: 132, text: 'pizza $29.90', size: 12, anchor: 'middle' }),
+      refText({ x: 354, y: 132, text: '$12.50', size: 11, anchor: 'middle' }),
+      refText({ x: 571, y: 132, text: 'saved = ?', size: 14, anchor: 'middle', bold: true }),
+      refBraceH({ x1: 130, x2: 750, y: 151, text: '$100', below: true }),
+      refText({ x: 130, y: 240, text: '$29.90 + $12.50 = $42.40  →  $100 − $42.40 = $57.60', size: 15, bold: true, color: '#2E7D32' })
+    ]
+  },
+  {
+    exam: { paper: 'St Hilda’s 2025', section: 'C', qnum: 27, marks: 3 },
+    text: 'Charles has 144 stickers. Charles has 3 times as many stickers as Danny. Eugene has 2 times as many stickers as Danny. How many stickers does Eugene have?',
+    answerStatement: 'Eugene has 96 stickers.',
+    expectedModel:
+      'Danny is the link between both comparisons, so find Danny first: 144 ÷ 3 = 48. ' +
+      'Then Eugene = 2 × 48 = 96. ' +
+      'THREE bars with the SAME unit size — Danny 1 unit, Charles 3 units, Eugene 2 units — is a correct model. ' +
+      'Taking 2 times Charles (288) instead of 2 times Danny is a marking error.',
+    workedSteps: [
+      'Danny = 144 ÷ 3 = 48 stickers',
+      'Eugene = 2 × 48 = 96 stickers'
+    ],
+    reference: [
+      refText({ x: 118, y: 68, text: 'Charles', anchor: 'end', bold: true }),
+      refBar({ x: 130, y: 45, units: 3, unitWidth: 150, color: '#BBDEFB' }),
+      refBraceH({ x1: 130, x2: 580, y: 91, text: '144', below: true }),
+      refText({ x: 118, y: 158, text: 'Danny', anchor: 'end', bold: true }),
+      refBar({ x: 130, y: 135, units: 1, unitWidth: 150 }),
+      refText({ x: 205, y: 162, text: '48', size: 14, anchor: 'middle' }),
+      refText({ x: 118, y: 228, text: 'Eugene', anchor: 'end', bold: true }),
+      refBar({ x: 130, y: 205, units: 2, unitWidth: 150, color: '#C8E6C9' }),
+      refText({ x: 280, y: 232, text: '?', size: 16, anchor: 'middle', bold: true }),
+      refText({ x: 130, y: 285, text: '144 ÷ 3 = 48 (Danny)  →  2 × 48 = 96 (Eugene)', size: 15, bold: true, color: '#2E7D32' })
+    ]
+  },
+  {
+    exam: { paper: 'St Hilda’s 2025', section: 'C', qnum: 28, marks: 4 },
+    text: 'Fiona had 4 times as many beads as Giny. They had 120 beads altogether. How many beads must Fiona give Giny so that they have the same number of beads?',
+    answerStatement: 'Fiona must give Giny 36 beads.',
+    expectedModel:
+      'TWO bars with the SAME unit size: Giny 1 unit, Fiona 4 units, so 5 units = 120 and 1 unit = 24. ' +
+      'Giny has 24 and Fiona has 96. ' +
+      'This is a MAKING EQUAL problem: the difference is 96 − 24 = 72, and Fiona gives away HALF of it, so 72 ÷ 2 = 36. ' +
+      'The model must show the difference split into two equal halves. ' +
+      'Giving away the whole difference of 72 is a marking error — that would just swap who has more. ' +
+      '(Check: Fiona 96 − 36 = 60 and Giny 24 + 36 = 60.)',
+    workedSteps: [
+      'Giny = 1 unit, Fiona = 4 units, so 5 units = 120',
+      '1 unit = 120 ÷ 5 = 24, so Giny = 24 and Fiona = 96',
+      'Difference = 96 − 24 = 72',
+      'Fiona gives half the difference: 72 ÷ 2 = 36 beads'
+    ],
+    reference: [
+      refText({ x: 118, y: 68, text: 'Fiona', anchor: 'end', bold: true }),
+      refBar({ x: 130, y: 45, units: 4, unitWidth: 130, color: '#BBDEFB' }),
+      refText({ x: 118, y: 148, text: 'Giny', anchor: 'end', bold: true }),
+      refBar({ x: 130, y: 125, units: 1, unitWidth: 130 }),
+      refBraceH({ x1: 260, x2: 650, y: 171, text: 'difference 72 = two halves of 36', below: true }),
+      refBraceSide({ x: 670, y1: 45, y2: 171, text: '120' }),
+      refText({ x: 130, y: 250, text: '5 units = 120  →  1 unit = 24  →  give 72 ÷ 2 = 36 beads', size: 15, bold: true, color: '#2E7D32' })
+    ]
+  },
+
+  /* ── CHIJ St Nicholas 2025, Section C (Q20–25, 20 marks) ────── */
+  {
+    exam: { paper: 'St Nicholas 2025', section: 'C', qnum: 20, marks: 3 },
+    text: 'Box A has a mass of 3 kg. It is 390 g lighter than Box B. Box C is 620 g heavier than Box B. What is the mass of Box C? Leave your answer in kilograms and grams.',
+    answerStatement: 'Box C has a mass of 4 kg 10 g.',
+    expectedModel:
+      'Work in grams first: 3 kg = 3000 g. ' +
+      'Box A is LIGHTER than Box B, so Box B = 3000 + 390 = 3390 g. ' +
+      'Box C is HEAVIER than Box B, so Box C = 3390 + 620 = 4010 g = 4 kg 10 g. ' +
+      'Three bars, each measured from the one before it, is a correct model. ' +
+      'Subtracting the 390 g (treating Box B as the lighter one) is a marking error, and the answer must be converted back to kg and g.',
+    workedSteps: [
+      '3 kg = 3000 g',
+      'Box B = 3000 + 390 = 3390 g',
+      'Box C = 3390 + 620 = 4010 g',
+      '4010 g = 4 kg 10 g'
+    ],
+    reference: [
+      refText({ x: 118, y: 58, text: 'Box A', anchor: 'end', bold: true }),
+      refBar({ x: 130, y: 38, units: 1, unitWidth: 420 }),
+      refText({ x: 340, y: 64, text: '3000 g', size: 13, anchor: 'middle' }),
+      refText({ x: 118, y: 128, text: 'Box B', anchor: 'end', bold: true }),
+      refBar({ x: 130, y: 108, units: 1, unitWidth: 420, color: '#BBDEFB' }),
+      refBar({ x: 550, y: 108, units: 1, unitWidth: 55, color: '#FFE0B2' }),
+      refText({ x: 578, y: 100, text: '390', size: 11, anchor: 'middle', color: '#8A8A8A' }),
+      refText({ x: 118, y: 198, text: 'Box C', anchor: 'end', bold: true }),
+      refBar({ x: 130, y: 178, units: 1, unitWidth: 475, color: '#C8E6C9' }),
+      refBar({ x: 605, y: 178, units: 1, unitWidth: 87, color: '#FFE0B2' }),
+      refText({ x: 648, y: 170, text: '620', size: 11, anchor: 'middle', color: '#8A8A8A' }),
+      refText({ x: 130, y: 272, text: '3000 + 390 = 3390  →  3390 + 620 = 4010 g = 4 kg 10 g', size: 15, bold: true, color: '#2E7D32' })
+    ]
+  },
+  {
+    exam: { paper: 'St Nicholas 2025', section: 'C', qnum: 21, marks: 3 },
+    text: 'John had $156. He wanted to buy a soccer ball which cost $79 and a jacket that cost $150. How much more money would John need to save in order to buy these two items?',
+    answerStatement: 'John would need to save $73 more.',
+    expectedModel:
+      'Add what the two items cost: $79 + $150 = $229. ' +
+      'Then subtract what he already has: $229 − $156 = $73. ' +
+      'A bar of $229 split into a "has $156" part and a "still needs ?" part is a correct model. ' +
+      'Comparing against only one of the two items is a marking error.',
+    workedSteps: [
+      'Total cost: $79 + $150 = $229',
+      'Still needed: $229 − $156 = $73'
+    ],
+    reference: [
+      refText({ x: 118, y: 128, text: 'Cost', anchor: 'end', bold: true }),
+      refBar({ x: 130, y: 105, units: 1, unitWidth: 422, color: '#BBDEFB' }),
+      refBar({ x: 552, y: 105, units: 1, unitWidth: 198 }),
+      refText({ x: 341, y: 132, text: 'has $156', size: 14, anchor: 'middle' }),
+      refText({ x: 651, y: 132, text: 'needs ?', size: 14, anchor: 'middle', bold: true }),
+      refBraceH({ x1: 130, x2: 750, y: 151, text: '$79 + $150 = $229', below: true }),
+      refText({ x: 130, y: 240, text: '$229 − $156 = $73 more to save', size: 15, bold: true, color: '#2E7D32' })
+    ]
+  },
+  {
+    exam: { paper: 'St Nicholas 2025', section: 'C', qnum: 22, marks: 3 },
+    text: 'A figure is made up of 3 identical squares. The length of each square is 8 cm. (a) What is the area of one square? (b) What is the area of the figure?',
+    answerStatement: '(a) One square has an area of 64 cm². (b) The figure has an area of 192 cm².',
+    expectedModel:
+      'Part (a): area of a square = side × side = 8 × 8 = 64 cm². ' +
+      'Part (b): the figure is made of 3 identical squares, so 64 × 3 = 192 cm². ' +
+      'Using the perimeter instead of the area, or multiplying by the wrong number of squares, is a marking error. Answers need the unit cm².',
+    workedSteps: [
+      '(a) 8 × 8 = 64 cm²',
+      '(b) 64 × 3 = 192 cm²'
+    ]
+  },
+  {
+    exam: { paper: 'St Nicholas 2025', section: 'C', qnum: 23, marks: 3 },
+    text: 'Xiao Ming bought 7 boxes of fruit tarts for a party. Each box contained 24 fruit tarts. Then she unpacked all the fruit tarts and placed them equally on 4 trays. (a) How many fruit tarts did Xiao Ming buy? (b) How many fruit tarts were on each tray?',
+    answerStatement: '(a) She bought 168 fruit tarts. (b) There were 42 fruit tarts on each tray.',
+    expectedModel:
+      'Part (a): 24 × 7 = 168 fruit tarts. ' +
+      'Part (b): 168 ÷ 4 = 42 on each tray. ' +
+      'A bar of 168 split into 4 equal units with "?" on one unit is a correct model for part (b). ' +
+      'Dividing 24 by 4 before multiplying, or skipping the total, is a marking error.',
+    workedSteps: [
+      '(a) 24 × 7 = 168 fruit tarts',
+      '(b) 168 ÷ 4 = 42 on each tray'
+    ],
+    reference: [
+      refText({ x: 118, y: 128, text: 'Tarts', anchor: 'end', bold: true }),
+      refBar({ x: 130, y: 105, units: 4, unitWidth: 155 }),
+      refText({ x: 207, y: 132, text: '?', size: 16, anchor: 'middle', bold: true }),
+      refText({ x: 440, y: 92, text: '4 equal trays', size: 12, anchor: 'middle', color: '#8A8A8A' }),
+      refBraceH({ x1: 130, x2: 750, y: 151, text: '168', below: true }),
+      refText({ x: 130, y: 240, text: '24 × 7 = 168  →  168 ÷ 4 = 42 per tray', size: 15, bold: true, color: '#2E7D32' })
+    ]
+  },
+  {
+    exam: { paper: 'St Nicholas 2025', section: 'C', qnum: 24, marks: 4 },
+    text: 'In the hall, there were 465 grey chairs and some blue chairs at first. Another 45 grey chairs were added. In the end, there were 5 times as many grey chairs as blue chairs. (a) How many blue chairs were there? (b) How many chairs were there altogether in the hall at first?',
+    answerStatement: '(a) There were 102 blue chairs. (b) There were 567 chairs altogether at first.',
+    expectedModel:
+      'The blue chairs never change, so make blue 1 unit throughout. ' +
+      'In the END the grey chairs are 5 units, and they equal 465 + 45 = 510. ' +
+      'So 5 units = 510 and 1 unit = 102 blue chairs. ' +
+      'Part (b) asks about AT FIRST, so use the original 465 grey chairs: 465 + 102 = 567. ' +
+      'Using the 510 grey chairs in part (b) is a marking error — the 45 were added later.',
+    workedSteps: [
+      '(a) Grey in the end: 465 + 45 = 510',
+      '(a) 5 units = 510, so 1 unit = 510 ÷ 5 = 102 blue chairs',
+      '(b) At first: 465 grey + 102 blue = 567 chairs'
+    ],
+    reference: [
+      refText({ x: 20, y: 30, text: 'In the end…', size: 13, bold: true, color: '#8A8A8A' }),
+      refText({ x: 118, y: 88, text: 'Blue', anchor: 'end', bold: true }),
+      refBar({ x: 130, y: 65, units: 1, unitWidth: 120 }),
+      refText({ x: 190, y: 92, text: '?', size: 16, anchor: 'middle', bold: true }),
+      refText({ x: 118, y: 168, text: 'Grey', anchor: 'end', bold: true }),
+      refBar({ x: 130, y: 145, units: 5, unitWidth: 120, color: '#BBDEFB' }),
+      refBraceH({ x1: 130, x2: 730, y: 191, text: '465 + 45 = 510', below: true }),
+      refText({ x: 130, y: 262, text: '5 units = 510  →  1 unit = 102 blue  →  at first 465 + 102 = 567', size: 14, bold: true, color: '#2E7D32' })
+    ]
+  },
+  {
+    exam: { paper: 'St Nicholas 2025', section: 'C', qnum: 25, marks: 4 },
+    text: 'Beth, Katie and Pamela had some cards. Beth had 69 fewer cards than Katie. Beth and Katie had a total of 277 cards. Pamela had as many cards as Beth. (a) How many cards did Pamela have? (b) Pamela gave 41 cards to Katie. How many more cards did Katie have than Pamela in the end?',
+    answerStatement: '(a) Pamela had 104 cards. (b) Katie had 151 more cards than Pamela in the end.',
+    expectedModel:
+      'Part (a): two bars braced as 277, with Katie’s bar 69 longer than Beth’s. ' +
+      'Take the 69 off the total to leave two equal bars: 277 − 69 = 208, so Beth = 208 ÷ 2 = 104. ' +
+      'Pamela has the same as Beth, so Pamela = 104. ' +
+      'Part (b): Katie starts on 104 + 69 = 173. After the gift, Katie has 173 + 41 = 214 and Pamela has 104 − 41 = 63, a difference of 151. ' +
+      'A quicker route: moving 41 across widens the gap by twice 41, so the new difference = 69 + 2 × 41 = 151. ' +
+      'Adding 41 only once (giving 110) is the classic marking error — the giver loses it AND the receiver gains it.',
+    workedSteps: [
+      '(a) 277 − 69 = 208, so Beth = 208 ÷ 2 = 104',
+      '(a) Pamela = Beth = 104 cards',
+      '(b) Katie = 104 + 69 = 173; after the gift Katie = 214, Pamela = 63',
+      '(b) Difference = 214 − 63 = 151 (or 69 + 2 × 41 = 151)'
+    ],
+    reference: [
+      refText({ x: 118, y: 68, text: 'Beth', anchor: 'end', bold: true }),
+      refBar({ x: 130, y: 45, units: 1, unitWidth: 300 }),
+      refText({ x: 280, y: 72, text: '104', size: 14, anchor: 'middle' }),
+      refText({ x: 118, y: 158, text: 'Katie', anchor: 'end', bold: true }),
+      refBar({ x: 130, y: 135, units: 1, unitWidth: 300, color: '#BBDEFB' }),
+      refBar({ x: 430, y: 135, units: 1, unitWidth: 199, color: '#FFCDD2' }),
+      refText({ x: 529, y: 162, text: '69 more', size: 13, anchor: 'middle' }),
+      refBraceSide({ x: 660, y1: 45, y2: 181, text: '277' }),
+      refText({ x: 130, y: 262, text: '277 − 69 = 208  →  Beth = Pamela = 104  →  gap = 69 + 2 × 41 = 151', size: 14, bold: true, color: '#2E7D32' })
+    ]
+  },
+
+  /* ── Tao Nan 2025, Section C (Q21–25, 20 marks) ─────────────── */
+  {
+    exam: { paper: 'Tao Nan 2025', section: 'C', qnum: 21, marks: 4 },
+    text: 'Mr Low baked 1845 cookies. He baked 365 more cookies than Mr Tan. (a) How many cookies did Mr Tan bake? (b) How many cookies did Mr Low and Mr Tan bake altogether?',
+    answerStatement: '(a) Mr Tan baked 1480 cookies. (b) Together they baked 3325 cookies.',
+    expectedModel:
+      'Mr Low baked MORE, so Mr Tan = 1845 − 365 = 1480. ' +
+      'Two bars with Mr Low’s bar 365 longer than Mr Tan’s is a correct model. ' +
+      'Part (b) adds both bars: 1845 + 1480 = 3325, and a brace over both carries the "?". ' +
+      'Adding the 365 to get Mr Tan is a marking error — he baked fewer.',
+    workedSteps: [
+      '(a) Mr Tan = 1845 − 365 = 1480 cookies',
+      '(b) Altogether = 1845 + 1480 = 3325 cookies'
+    ],
+    reference: [
+      refText({ x: 118, y: 68, text: 'Mr Low', anchor: 'end', bold: true }),
+      refBar({ x: 130, y: 45, units: 1, unitWidth: 420, color: '#BBDEFB' }),
+      refBar({ x: 550, y: 45, units: 1, unitWidth: 83, color: '#FFCDD2' }),
+      refText({ x: 340, y: 72, text: '1845', size: 14, anchor: 'middle' }),
+      refText({ x: 591, y: 72, text: '365', size: 11, anchor: 'middle' }),
+      refText({ x: 118, y: 158, text: 'Mr Tan', anchor: 'end', bold: true }),
+      refBar({ x: 130, y: 135, units: 1, unitWidth: 420 }),
+      refText({ x: 340, y: 162, text: '1480', size: 14, anchor: 'middle' }),
+      refBraceSide({ x: 660, y1: 45, y2: 181, text: '? = 3325' }),
+      refText({ x: 130, y: 262, text: '1845 − 365 = 1480  →  1845 + 1480 = 3325', size: 15, bold: true, color: '#2E7D32' })
+    ]
+  },
+  {
+    exam: { paper: 'Tao Nan 2025', section: 'C', qnum: 22, marks: 4 },
+    text: 'Adam, Ben and Clarice shared a chocolate bar. Adam ate 5/12 of the chocolate bar while Ben ate 1/4 of the chocolate bar. Clarice ate the rest of the chocolate bar. (a) What fraction of the chocolate bar did Adam and Ben eat altogether? Give your answer in the simplest form. (b) How much more of the chocolate bar was eaten by Clarice than Ben?',
+    answerStatement: '(a) Adam and Ben ate 2/3 of the bar. (b) Clarice ate 1/12 more of the bar than Ben.',
+    expectedModel:
+      'Draw ONE bar in 12 equal units (12 is the common denominator). Adam takes 5 units, Ben takes 1/4 = 3 units. ' +
+      'Part (a): 5/12 + 3/12 = 8/12, which must be simplified to 2/3. ' +
+      'Part (b): Clarice has the rest, 12 − 8 = 4 units = 4/12 = 1/3. ' +
+      'The question asks HOW MUCH MORE, so subtract: 4/12 − 3/12 = 1/12. ' +
+      'Adding Clarice and Ben instead of subtracting is a marking error, and part (a) loses a mark if left as 8/12.',
+    workedSteps: [
+      '(a) Ben: 1/4 = 3/12',
+      '(a) 5/12 + 3/12 = 8/12 = 2/3',
+      '(b) Clarice: 1 − 8/12 = 4/12',
+      '(b) 4/12 − 3/12 = 1/12 more than Ben'
+    ],
+    reference: [
+      refText({ x: 118, y: 128, text: 'Bar', anchor: 'end', bold: true }),
+      refBar({ x: 130, y: 105, units: 12, unitWidth: 50, shaded: [0, 1, 2, 3, 4] }),
+      refText({ x: 255, y: 95, text: 'Adam 5/12', size: 12, anchor: 'middle', color: '#8A8A8A' }),
+      refText({ x: 455, y: 95, text: 'Ben 3/12', size: 12, anchor: 'middle', color: '#8A8A8A' }),
+      refText({ x: 630, y: 95, text: 'Clarice 4/12', size: 12, anchor: 'middle', color: '#8A8A8A' }),
+      refBraceH({ x1: 130, x2: 530, y: 151, text: '8/12 = 2/3', below: true }),
+      refText({ x: 130, y: 240, text: '(a) 5/12 + 3/12 = 2/3    (b) 4/12 − 3/12 = 1/12', size: 15, bold: true, color: '#2E7D32' })
+    ]
+  },
+  {
+    exam: { paper: 'Tao Nan 2025', section: 'C', qnum: 23, marks: 4 },
+    text: 'Raju took 2 h 35 min to complete a race. Peter took 50 min more than Raju to complete the same race. (a) How long did Peter take to complete the race? Give your answer in h and min. (b) The race started at 5.45 a.m. At what time did Raju complete the race? Give your answer in 24-hour clock.',
+    answerStatement: '(a) Peter took 3 h 25 min. (b) Raju completed the race at 08 20.',
+    expectedModel:
+      'Part (a): 2 h 35 min + 50 min = 2 h 85 min = 3 h 25 min (60 min = 1 h). ' +
+      'Part (b): use RAJU’s time, not Peter’s. 5.45 a.m. + 2 h = 7.45 a.m., then + 35 min = 8.20 a.m., written as 08 20 in 24-hour clock. ' +
+      'Leaving the answer as 2 h 85 min, or using Peter’s 3 h 25 min in part (b), is a marking error.',
+    workedSteps: [
+      '(a) 2 h 35 min + 50 min = 2 h 85 min = 3 h 25 min',
+      '(b) 5.45 a.m. + 2 h = 7.45 a.m.',
+      '(b) 7.45 a.m. + 35 min = 8.20 a.m. = 08 20'
+    ]
+  },
+  {
+    exam: { paper: 'Tao Nan 2025', section: 'C', qnum: 24, marks: 4 },
+    text: 'Jane used a piece of wire to form a rectangle and a square. The rectangle measures 24 cm by 16 cm. The length of the rectangle was twice the length of the square. (a) Find the area of the square. (b) Find the length of the piece of wire Jane used.',
+    answerStatement: '(a) The area of the square is 144 cm². (b) The wire was 128 cm long.',
+    expectedModel:
+      'Part (a): the rectangle’s LENGTH is 24 cm, and it is twice the square’s side, so the square’s side = 24 ÷ 2 = 12 cm. ' +
+      'Area of the square = 12 × 12 = 144 cm². ' +
+      'Part (b): the wire forms BOTH shapes, so it is the perimeter of the rectangle plus the perimeter of the square: ' +
+      '(24 + 16 + 24 + 16) + (12 × 4) = 80 + 48 = 128 cm. ' +
+      'Using the 16 cm width as the "length", or giving only one shape’s perimeter, is a marking error. Watch the units: cm² for area, cm for length.',
+    workedSteps: [
+      '(a) Side of square = 24 ÷ 2 = 12 cm',
+      '(a) Area of square = 12 × 12 = 144 cm²',
+      '(b) Perimeter of rectangle = 24 + 16 + 24 + 16 = 80 cm',
+      '(b) Perimeter of square = 12 × 4 = 48 cm',
+      '(b) Wire = 80 + 48 = 128 cm'
+    ]
+  },
+  {
+    exam: { paper: 'Tao Nan 2025', section: 'C', qnum: 25, marks: 4 },
+    text: 'A shop sells pens at $9 per packet, with 6 pens in each packet. There is an offer: buy 1 packet and get 2 pens free. (a) Mdm Aishah needs 48 pens. What is the least amount of money she has to pay? (b) Sam has $46. What is the greatest number of pens he can get?',
+    answerStatement: '(a) Mdm Aishah has to pay $54. (b) Sam can get 40 pens at most.',
+    expectedModel:
+      'The offer means each $9 packet actually brings home 6 + 2 = 8 pens. ' +
+      'Part (a): 48 ÷ 8 = 6 packets, so 6 × $9 = $54. ' +
+      'Part (b): $46 ÷ $9 = 5 packets with $1 left over (not enough for another packet), so 5 × 8 = 40 pens. ' +
+      'Forgetting the 2 free pens (working in 6s) is the main marking error, as is rounding part (b) up — Sam cannot buy a 6th packet with $1.',
+    workedSteps: [
+      'Each packet gives 6 + 2 free = 8 pens for $9',
+      '(a) 48 ÷ 8 = 6 packets → 6 × $9 = $54',
+      '(b) $46 ÷ $9 = 5 packets remainder $1',
+      '(b) 5 × 8 = 40 pens'
+    ]
   }
 ];
 
@@ -3768,8 +4101,29 @@ function renderBarElement(element) {
       });
       group.appendChild(hatch);
     }
+
+    /* Inner label: words written INSIDE this unit. Stored on the bar,
+       so it travels and resizes with it. Double-click a unit to set it. */
+    var inner = element.labels && element.labels[i];
+    if (inner) {
+      group.appendChild(makeText(
+        element.x + i * unitWidth + unitWidth / 2,
+        element.y + element.h / 2 + 5,
+        inner,
+        { size: innerLabelSize(inner, unitWidth), anchor: 'middle', color: '#1A1A1A' }
+      ));
+    }
   }
   return group;
+}
+
+/* Shrink an inner label just enough to sit inside its unit. Century
+   Gothic runs about 0.58em per character at these sizes. */
+function innerLabelSize(text, unitWidth) {
+  var size = 15;
+  var usable = unitWidth - 10;
+  while (size > 9 && text.length * size * 0.58 > usable) { size -= 1; }
+  return size;
 }
 
 function shadeOf(hexColor) {
@@ -3815,21 +4169,31 @@ function renderLabelElement(element) {
   return group;
 }
 
-function renderBraceElement(element) {
-  var group = makeNode('g', { 'data-id': element.id, 'data-type': 'brace' });
+/* ── Brace geometry ──────────────────────────────────────────────────
+   A brace can point in any of four directions: a horizontal brace opens
+   DOWN (below) or UP, a vertical one opens RIGHT or LEFT. This single
+   helper works out the path and label placement so the live drag
+   preview and the committed brace are always drawn by the same code
+   and can never disagree.
 
-  /* ── Vertical brace: spans y1..y2 at a fixed x, opening rightward.
-     Used for stacked bars — brace the combined height of two bars,
-     or the side of a single tall span. ─────────────────────────── */
+   Braces saved before left-facing existed have no `facing`, so an
+   absent value means 'right' — the old behaviour. */
+
+function braceFacing(element) {
+  return element.facing === 'left' ? 'left' : 'right';
+}
+
+function braceGeometry(element) {
   if (element.vertical) {
     var vy1 = Math.min(element.y1, element.y2);
     var vy2 = Math.max(element.y1, element.y2);
     var midY = (vy1 + vy2) / 2;
     var vx = element.x;
-    var vDepth = 12;    // bracket bulge, to the right of the anchor line
-    var vTip = 20;      // the pointy middle nub, further right
+    var sign = braceFacing(element) === 'left' ? -1 : 1;
+    var vDepth = 12 * sign;   // bracket bulge, out to the facing side
+    var vTip = 20 * sign;     // the pointy middle nub, further out
 
-    var vPath = makeNode('path', {
+    return {
       d: 'M' + vx + ' ' + vy1 +
          ' Q' + (vx + vDepth) + ' ' + vy1 + ' ' + (vx + vDepth) + ' ' + (vy1 + 10) +
          ' L' + (vx + vDepth) + ' ' + (midY - 10) +
@@ -3837,26 +4201,14 @@ function renderBraceElement(element) {
          ' Q' + (vx + vDepth) + ' ' + midY + ' ' + (vx + vDepth) + ' ' + (midY + 10) +
          ' L' + (vx + vDepth) + ' ' + (vy2 - 10) +
          ' Q' + (vx + vDepth) + ' ' + vy2 + ' ' + vx + ' ' + vy2,
-      fill: 'none',
-      stroke: '#5C5C5C',
-      'stroke-width': 1.8
-    });
-    group.appendChild(vPath);
-
-    group.appendChild(makeText(vx + vTip + 8, midY, element.text, {
-      size: 16, bold: true, anchor: 'start', baseline: 'middle',
-      color: element.text.indexOf('?') !== -1 ? '#E64A19' : '#1A1A1A'
-    }));
-
-    // Fat invisible spine for easy select/erase
-    group.appendChild(makeNode('line', {
-      x1: vx + 8, y1: vy1, x2: vx + 8, y2: vy2,
-      stroke: 'transparent', 'stroke-width': 26
-    }));
-    return group;
+      labelX: vx + vTip + 8 * sign,
+      labelY: midY,
+      anchor: sign < 0 ? 'end' : 'start',
+      baseline: 'middle',
+      spine: { x1: vx + 8 * sign, y1: vy1, x2: vx + 8 * sign, y2: vy2 }
+    };
   }
 
-  /* ── Horizontal brace (original behaviour) ───────────────────── */
   var x1 = Math.min(element.x1, element.x2);
   var x2 = Math.max(element.x1, element.x2);
   var midX = (x1 + x2) / 2;
@@ -3864,7 +4216,7 @@ function renderBraceElement(element) {
   var depth = element.below ? 12 : -12;
   var tip = element.below ? 20 : -20;
 
-  var path = makeNode('path', {
+  return {
     d: 'M' + x1 + ' ' + y +
        ' Q' + x1 + ' ' + (y + depth) + ' ' + (x1 + 10) + ' ' + (y + depth) +
        ' L' + (midX - 10) + ' ' + (y + depth) +
@@ -3872,16 +4224,57 @@ function renderBraceElement(element) {
        ' Q' + midX + ' ' + (y + depth) + ' ' + (midX + 10) + ' ' + (y + depth) +
        ' L' + (x2 - 10) + ' ' + (y + depth) +
        ' Q' + x2 + ' ' + (y + depth) + ' ' + x2 + ' ' + y,
-    fill: 'none',
-    stroke: '#5C5C5C',
-    'stroke-width': 1.8
-  });
-  group.appendChild(path);
+    labelX: midX,
+    labelY: element.below ? y + tip + 20 : y + tip - 8,
+    anchor: 'middle',
+    baseline: null,
+    spine: null
+  };
+}
 
-  var labelY = element.below ? y + tip + 20 : y + tip - 8;
-  group.appendChild(makeText(midX, labelY, element.text, {
-    size: 16, bold: true, anchor: 'middle',
+function renderBraceElement(element) {
+  var group = makeNode('g', { 'data-id': element.id, 'data-type': 'brace' });
+  var geo = braceGeometry(element);
+
+  group.appendChild(makeNode('path', {
+    d: geo.d, fill: 'none', stroke: '#5C5C5C', 'stroke-width': 1.8
+  }));
+
+  var textOptions = {
+    size: 16, bold: true, anchor: geo.anchor,
     color: element.text.indexOf('?') !== -1 ? '#E64A19' : '#1A1A1A'
+  };
+  if (geo.baseline) { textOptions.baseline = geo.baseline; }
+  group.appendChild(makeText(geo.labelX, geo.labelY, element.text, textOptions));
+
+  if (geo.spine) {
+    // Fat invisible spine for easy select/erase on vertical braces
+    group.appendChild(makeNode('line', {
+      x1: geo.spine.x1, y1: geo.spine.y1, x2: geo.spine.x2, y2: geo.spine.y2,
+      stroke: 'transparent', 'stroke-width': 26
+    }));
+  }
+  return group;
+}
+
+/* ── Alignment guide ─────────────────────────────────────────────────
+   A faint grey dotted line, carrying no text. Its only job is to show
+   that edges line up — that two bars start at the same place, or that
+   a unit boundary matches the one above it. Deliberately paler and
+   finer than the equality line so it reads as scaffolding, not as a
+   statement about the maths.                                        */
+
+function renderAlignElement(element) {
+  var group = makeNode('g', { 'data-id': element.id, 'data-type': 'align' });
+  group.appendChild(makeNode('line', {
+    x1: element.x1, y1: element.y1, x2: element.x2, y2: element.y2,
+    stroke: '#C4C4C4', 'stroke-width': 1.4,
+    'stroke-dasharray': '2 5', 'stroke-linecap': 'round'
+  }));
+  // Fat invisible line so a 1.4px guide is still easy to grab
+  group.appendChild(makeNode('line', {
+    x1: element.x1, y1: element.y1, x2: element.x2, y2: element.y2,
+    stroke: 'transparent', 'stroke-width': 16
   }));
   return group;
 }
@@ -4044,6 +4437,7 @@ function renderAllElements() {
     else if (element.type === 'arrow') { node = renderArrowElement(element); }
     else if (element.type === 'divider') { node = renderDividerElement(element); }
     else if (element.type === 'dotted') { node = renderDottedElement(element); }
+    else if (element.type === 'align') { node = renderAlignElement(element); }
     else if (element.type === 'pen') { node = renderPenElement(element); }
     if (node) { elementsLayer.appendChild(node); }
   }
@@ -4196,7 +4590,7 @@ function resizeHandlesFor(element) {
       { name: 'end',   x: element.x2, y: element.y, cursor: 'ew-resize' }
     ];
   }
-  if (element.type === 'arrow' || element.type === 'dotted') {
+  if (element.type === 'arrow' || element.type === 'dotted' || element.type === 'align') {
     return [
       { name: 'start', x: element.x1, y: element.y1, cursor: 'move' },
       { name: 'end',   x: element.x2, y: element.y2, cursor: 'move' }
@@ -4256,10 +4650,10 @@ function applyResize(element, original, handleName, point) {
     if (handleName === 'start') { element.x1 = point.x; element.y1 = point.y; }
     else { element.x2 = point.x; element.y2 = point.y; }
 
-  } else if (element.type === 'dotted') {
+  } else if (element.type === 'dotted' || element.type === 'align') {
     /* Endpoints snap to the grid, and a line that was drawn straight
-       stays straight — an equality guide is only useful if it keeps
-       lining the two parts up exactly. */
+       stays straight — a guide is only useful if it keeps lining the
+       two parts up exactly. */
     var wasVertical = original.x1 === original.x2;
     var wasHorizontal = original.y1 === original.y2;
     if (handleName === 'start') {
@@ -4314,6 +4708,14 @@ function elementBounds(element) {
   if (element.type === 'arrow') {
     var ax = Math.min(element.x1, element.x2), ay = Math.min(element.y1, element.y2);
     return { x: ax - 4, y: ay - 4, w: Math.abs(element.x2 - element.x1) + 8, h: Math.abs(element.y2 - element.y1) + 8 };
+  }
+  if (element.type === 'align') {
+    var gx = Math.min(element.x1, element.x2), gy = Math.min(element.y1, element.y2);
+    return {
+      x: gx - 4, y: gy - 4,
+      w: Math.abs(element.x2 - element.x1) + 8,
+      h: Math.abs(element.y2 - element.y1) + 8
+    };
   }
   if (element.type === 'dotted') {
     // Pad to at least the "=" badge so the selection box never sits
@@ -4506,10 +4908,11 @@ function updateCanvasHint() {
     split: 'Click a bar to split it into equal units',
     shade: 'Click a unit to shade or unshade it',
     label: 'Click anywhere, type your label, then press Enter — use "?" for the unknown',
-    brace: 'Drag across (or DOWN for vertical), type its value, then press Enter',
+    brace: 'Drag across or DOWN — dip the drag the way you want it to open (up/down/left/right). Press F to flip a selected brace.',
     arrow: 'Drag from the giver to the receiver, type the amount, then press Enter',
     divider: 'Click where the Before / After line should go',
     dotted: 'Drag a dotted line between two parts that are equal — double-click it to change the “=” mark',
+    align: 'Drag a faint guide line to show that two edges line up — it carries no words, it just lines things up',
     pen: 'Draw freely — sketch your whole model by hand if you like; the AI marks whatever you draw',
     eraser: 'Click any element to erase it'
   };
@@ -4540,20 +4943,28 @@ function textAnchorOf(element) {
   if (element.type === 'arrow' || element.type === 'dotted') {
     return { x: (element.x1 + element.x2) / 2, y: (element.y1 + element.y2) / 2 - 10 };
   }
-  return null;
+  return null;   // pen, divider and alignment guides carry no text
 }
 
 function beginTextEdit(element, atPoint) {
   if (element.type === 'bar') {
-    var labelX = atPoint ? atPoint.x : element.x + element.w / 2;
-    var labelY = atPoint ? atPoint.y : element.y + element.h / 2;
-    openFloatingInput(labelX, labelY, '', function (value) {
-      if (!value.trim()) { return; }
+    /* Double-clicking a bar writes words INSIDE it, PowerPoint-style.
+       The text is stored on the bar against the unit that was clicked,
+       so it stays put when the bar is moved, resized or recoloured. */
+    var unitWidth = element.w / element.units;
+    var unitIndex = 0;
+    if (atPoint) {
+      unitIndex = Math.floor((atPoint.x - element.x) / unitWidth);
+      unitIndex = Math.max(0, Math.min(element.units - 1, unitIndex));
+    }
+    if (!element.labels) { element.labels = {}; }
+    var centreX = element.x + unitIndex * unitWidth + unitWidth / 2;
+    var centreY = element.y + element.h / 2;
+    openFloatingInput(centreX, centreY, element.labels[unitIndex] || '', function (value) {
+      var trimmed = value.trim();
       pushUndoSnapshot();
-      appState.elements.push({
-        id: newElementId(), type: 'label',
-        x: snap(labelX), y: snap(labelY + 6), text: value.trim()
-      });
+      if (trimmed) { element.labels[unitIndex] = trimmed; }
+      else { delete element.labels[unitIndex]; }   // emptied → cleared
       renderAllElements();
     });
     return true;
@@ -4612,6 +5023,8 @@ canvasSvg.addEventListener('pointerdown', function (event) {
     pointerSession = { mode: 'drawArrow', startX: point.x, startY: point.y };
   } else if (tool === 'dotted') {
     pointerSession = { mode: 'drawDotted', startX: snap(point.x), startY: snap(point.y) };
+  } else if (tool === 'align') {
+    pointerSession = { mode: 'drawAlign', startX: snap(point.x), startY: snap(point.y) };
   } else if (tool === 'select') {
     // A resize handle wins over element hit-testing so handles that
     // overlap the element (or a neighbour) still grab correctly.
@@ -4736,20 +5149,17 @@ canvasSvg.addEventListener('pointermove', function (event) {
       drawPreviewPen(pointerSession.points, pointerSession.ink);
     }
   } else if (pointerSession.mode === 'drawBrace') {
-    // Dominant axis decides orientation: mostly-horizontal drag →
-    // horizontal brace; mostly-vertical drag → vertical brace.
-    var braceDx = Math.abs(point.x - pointerSession.startX);
-    var braceDy = Math.abs(point.y - pointerSession.startY);
-    if (braceDy > braceDx) {
-      drawPreviewLine(pointerSession.startX, pointerSession.startY, pointerSession.startX, snap(point.y));
-    } else {
-      drawPreviewLine(pointerSession.startX, pointerSession.startY, snap(point.x), pointerSession.startY);
-    }
+    // Live ghost of the actual brace, drawn by the same geometry code
+    // that will render it, so what you see is exactly what you get.
+    drawPreviewBrace(braceFromDrag(pointerSession.startX, pointerSession.startY, point));
   } else if (pointerSession.mode === 'drawArrow') {
     drawPreviewArrow(pointerSession.startX, pointerSession.startY, point.x, point.y);
   } else if (pointerSession.mode === 'drawDotted') {
     var dottedEnd = resolveDottedEnd(pointerSession.startX, pointerSession.startY, point);
     drawPreviewDotted(pointerSession.startX, pointerSession.startY, dottedEnd.x, dottedEnd.y);
+  } else if (pointerSession.mode === 'drawAlign') {
+    var guideEnd = resolveDottedEnd(pointerSession.startX, pointerSession.startY, point);
+    drawPreviewAlign(pointerSession.startX, pointerSession.startY, guideEnd.x, guideEnd.y);
   } else if (pointerSession.mode === 'marquee') {
     drawPreviewMarquee(pointerSession.startX, pointerSession.startY, point.x, point.y);
   } else if (pointerSession.mode === 'move') {
@@ -4825,40 +5235,43 @@ canvasSvg.addEventListener('pointerup', function (event) {
       renderAllElements();
     }
   } else if (pointerSession.mode === 'drawBrace') {
-    var braceEndX = snap(point.x);
-    var braceEndY = snap(point.y);
-    var spanX = Math.abs(braceEndX - pointerSession.startX);
-    var spanY = Math.abs(braceEndY - pointerSession.startY);
-
-    if (spanY > spanX && spanY >= 30) {
-      /* Vertical brace: anchored at the start x, spanning the dragged
-         height, opening to the right with its label beside the nub. */
-      var vTop = Math.min(pointerSession.startY, braceEndY);
-      var vBottom = Math.max(pointerSession.startY, braceEndY);
-      var vAnchorX = pointerSession.startX;
-      openFloatingInput(vAnchorX + 46, (vTop + vBottom) / 2, '', function (value) {
+    // Same geometry the preview just showed, so the committed brace
+    // lands exactly where the ghost was.
+    var ghost = braceFromDrag(pointerSession.startX, pointerSession.startY, point);
+    if (ghost.span >= 30) {
+      var geo = braceGeometry(ghost);
+      var promptX = ghost.vertical
+        ? geo.labelX + (braceFacing(ghost) === 'left' ? -26 : 26)
+        : geo.labelX;
+      openFloatingInput(promptX, geo.labelY, '', function (value) {
         pushUndoSnapshot();
-        appState.elements.push({
-          id: newElementId(), type: 'brace', vertical: true,
-          x: vAnchorX, y1: vTop, y2: vBottom,
-          text: value.trim() || '?'
-        });
+        var brace = { id: newElementId(), type: 'brace', text: value.trim() || '?' };
+        if (ghost.vertical) {
+          brace.vertical = true;
+          brace.x = ghost.x; brace.y1 = ghost.y1; brace.y2 = ghost.y2;
+          brace.facing = ghost.facing;
+        } else {
+          brace.x1 = ghost.x1; brace.x2 = ghost.x2; brace.y = ghost.y;
+          brace.below = ghost.below;
+        }
+        appState.elements.push(brace);
         renderAllElements();
       });
-    } else if (spanX >= 30) {
-      var bx1 = Math.min(pointerSession.startX, braceEndX);
-      var bx2 = Math.max(pointerSession.startX, braceEndX);
-      var by = pointerSession.startY;
-      var braceBelow = true;   // default: opens downward under the span
-      openFloatingInput((bx1 + bx2) / 2, by + 30, '', function (value) {
-        pushUndoSnapshot();
-        appState.elements.push({
-          id: newElementId(), type: 'brace',
-          x1: bx1, x2: bx2, y: by,
-          text: value.trim() || '?', below: braceBelow
-        });
-        renderAllElements();
+    }
+  } else if (pointerSession.mode === 'drawAlign') {
+    var alignEnd = resolveDottedEnd(pointerSession.startX, pointerSession.startY, point);
+    var alignSpan = Math.max(
+      Math.abs(alignEnd.x - pointerSession.startX),
+      Math.abs(alignEnd.y - pointerSession.startY)
+    );
+    if (alignSpan >= 20) {
+      pushUndoSnapshot();
+      appState.elements.push({
+        id: newElementId(), type: 'align',
+        x1: pointerSession.startX, y1: pointerSession.startY,
+        x2: alignEnd.x, y2: alignEnd.y
       });
+      renderAllElements();
     }
   } else if (pointerSession.mode === 'drawArrow') {
     var length = Math.sqrt(
@@ -4974,7 +5387,7 @@ function applyMove(element, original, dx, dy, exact) {
   } else if (element.type === 'arrow') {
     element.x1 = original.x1 + dx; element.y1 = original.y1 + dy;
     element.x2 = original.x2 + dx; element.y2 = original.y2 + dy;
-  } else if (element.type === 'dotted') {
+  } else if (element.type === 'dotted' || element.type === 'align') {
     // Snapped, so a guide line dragged sideways stays aligned to bars
     element.x1 = fit(original.x1 + dx); element.y1 = fit(original.y1 + dy);
     element.x2 = fit(original.x2 + dx); element.y2 = fit(original.y2 + dy);
@@ -5043,6 +5456,58 @@ function drawPreviewArrow(x1, y1, x2, y2) {
     stroke: '#E64A19', 'stroke-width': 2, 'stroke-dasharray': '5 4'
   }));
 }
+/* ── Brace drags ─────────────────────────────────────────────────────
+   The dominant axis picks the orientation; the SMALL cross-axis wobble
+   picks which way it opens. Drag right and dip down → opens downward;
+   dip up → opens upward. Drag down and lean left → opens leftward.
+   A perfectly straight drag keeps the old defaults (down / right). */
+function braceFromDrag(startX, startY, point) {
+  var endX = snap(point.x), endY = snap(point.y);
+  var spanX = Math.abs(endX - startX);
+  var spanY = Math.abs(endY - startY);
+
+  if (spanY > spanX) {
+    return {
+      vertical: true, x: startX,
+      y1: Math.min(startY, endY), y2: Math.max(startY, endY),
+      facing: (endX - startX) < 0 ? 'left' : 'right',
+      span: spanY, text: '?'
+    };
+  }
+  return {
+    vertical: false,
+    x1: Math.min(startX, endX), x2: Math.max(startX, endX),
+    y: startY,
+    below: (endY - startY) >= 0,
+    span: spanX, text: '?'
+  };
+}
+
+function drawPreviewBrace(ghost) {
+  clearPreview();
+  if (ghost.span < 12) { return; }        // too short to read yet
+  var geo = braceGeometry(ghost);
+  previewLayer.appendChild(makeNode('path', {
+    d: geo.d, fill: 'none', stroke: '#66BB6A',
+    'stroke-width': 2, 'stroke-dasharray': '5 4', 'pointer-events': 'none'
+  }));
+  // Ghost the label spot too, so its side is obvious before committing
+  var dot = makeText(geo.labelX, geo.labelY, '?', {
+    size: 16, bold: true, anchor: geo.anchor, color: '#66BB6A'
+  });
+  if (geo.baseline) { dot.setAttribute('dominant-baseline', geo.baseline); }
+  previewLayer.appendChild(dot);
+}
+
+function drawPreviewAlign(x1, y1, x2, y2) {
+  clearPreview();
+  previewLayer.appendChild(makeNode('line', {
+    x1: x1, y1: y1, x2: x2, y2: y2,
+    stroke: '#C4C4C4', 'stroke-width': 1.6,
+    'stroke-dasharray': '2 5', 'stroke-linecap': 'round'
+  }));
+}
+
 function drawPreviewMarquee(x1, y1, x2, y2) {
   clearPreview();
   previewLayer.appendChild(makeNode('rect', {
@@ -5160,6 +5625,13 @@ function openSplitPopover(barElement, clientX, clientY) {
       pushUndoSnapshot();
       barElement.units = count;
       barElement.shaded = barElement.shaded.filter(function (idx) { return idx < count; });
+      // Inner labels belong to unit indices, so drop any that the new
+      // split has left without a unit to sit in.
+      if (barElement.labels) {
+        Object.keys(barElement.labels).forEach(function (idx) {
+          if (Number(idx) >= count) { delete barElement.labels[idx]; }
+        });
+      }
       renderAllElements();
     }
     closeFloatingWidgets();
@@ -5336,15 +5808,22 @@ function describeStudentElements() {
   for (var i = 0; i < appState.elements.length; i++) {
     var el = appState.elements[i];
     if (el.type === 'bar') {
+      var innerKeys = el.labels ? Object.keys(el.labels) : [];
+      var innerText = innerKeys.length
+        ? ', with words written INSIDE it: ' + innerKeys.map(function (k) {
+            return 'unit ' + k + ' = "' + el.labels[k] + '"';
+          }).join('; ')
+        : '';
       lines.push('- BAR at x=' + el.x + ', y=' + el.y + ', width=' + el.w + 'px, split into ' +
         el.units + ' equal unit(s)' +
-        (el.shaded.length ? ', shaded unit indices: [' + el.shaded.join(', ') + ']' : ''));
+        (el.shaded.length ? ', shaded unit indices: [' + el.shaded.join(', ') + ']' : '') +
+        innerText);
     } else if (el.type === 'label') {
       lines.push('- LABEL "' + el.text + '" at x=' + el.x + ', y=' + el.y);
     } else if (el.type === 'brace') {
       if (el.vertical) {
         lines.push('- VERTICAL BRACE at x=' + el.x + ', spanning y=' + Math.min(el.y1, el.y2) +
-          ' to y=' + Math.max(el.y1, el.y2) + ' (opens rightward), labelled "' + el.text + '"');
+          ' to y=' + Math.max(el.y1, el.y2) + ' (opens ' + braceFacing(el) + 'ward), labelled "' + el.text + '"');
       } else {
         lines.push('- BRACE spanning x=' + Math.min(el.x1, el.x2) + ' to x=' + Math.max(el.x1, el.x2) +
           ' at y=' + el.y + ', labelled "' + el.text + '"' + (el.below ? ' (below content)' : ' (above content)'));
@@ -5360,6 +5839,13 @@ function describeStudentElements() {
         (el.text ? ', marked "' + el.text + '"' : '') +
         '. The student is using it to show that the two parts it joins are EQUAL' +
         (dotOrientation === 'vertical' ? ' / line up at the same length' : '') + '.');
+    } else if (el.type === 'align') {
+      var guideOrientation = el.x1 === el.x2 ? 'vertical' :
+                             (el.y1 === el.y2 ? 'horizontal' : 'slanted');
+      lines.push('- FAINT ALIGNMENT GUIDE (' + guideOrientation + ') from (' + Math.round(el.x1) + ',' +
+        Math.round(el.y1) + ') to (' + Math.round(el.x2) + ',' + Math.round(el.y2) +
+        '). It carries no value — the student drew it only to show that the edges it touches line up. ' +
+        'Do not read it as a claim about the maths.');
     } else if (el.type === 'divider') {
       lines.push('- BEFORE/AFTER DIVIDER line at y=' + el.y);
     } else if (el.type === 'pen') {
@@ -5994,7 +6480,7 @@ revealBtn.addEventListener('click', toggleModelAnswer);
 
 /* ── Keyboard shortcuts ──────────────────────────────────────────── */
 
-var TOOL_SHORTCUTS = { v: 'select', b: 'bar', s: 'split', h: 'shade', t: 'label', c: 'brace', a: 'arrow', d: 'divider', g: 'dotted', '=': 'dotted', p: 'pen', e: 'eraser' };
+var TOOL_SHORTCUTS = { v: 'select', b: 'bar', s: 'split', h: 'shade', t: 'label', c: 'brace', a: 'arrow', d: 'divider', g: 'dotted', '=': 'dotted', l: 'align', p: 'pen', e: 'eraser' };
 
 var NUDGE_KEYS = {
   ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1]
@@ -6082,6 +6568,21 @@ document.addEventListener('keydown', function (event) {
       renderAllElements();
     }
     return;
+  }
+  if (event.key.toLowerCase() === 'f' && appState.selectedIds.length &&
+      !event.ctrlKey && !event.metaKey && !event.altKey) {
+    // F flips every selected brace to face the other way
+    var braces = selectedElements().filter(function (el) { return el.type === 'brace'; });
+    if (braces.length) {
+      event.preventDefault();
+      pushUndoSnapshot();
+      braces.forEach(function (brace) {
+        if (brace.vertical) { brace.facing = braceFacing(brace) === 'left' ? 'right' : 'left'; }
+        else { brace.below = !brace.below; }
+      });
+      renderAllElements();
+      return;
+    }
   }
   var tool = TOOL_SHORTCUTS[event.key.toLowerCase()];
   if (tool && !event.ctrlKey && !event.metaKey && !event.altKey) {
