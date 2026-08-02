@@ -532,6 +532,24 @@ input, button, select, textarea { font-family: inherit; }
   box-shadow: var(--shadow-xs);
 }
 
+/* Select is the one tool that acts on what you have already drawn
+   rather than adding something new, so it gets its own look and sits
+   apart from the drawing tools. It was getting lost among a dozen
+   lookalike chips. */
+.tool-btn.tool-select {
+  border-color: var(--border-medium);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+}
+.tool-btn.tool-select:hover {
+  border-color: var(--accent-base);
+  background: var(--accent-bg);
+}
+.tool-btn.tool-select.active {
+  background: var(--accent-light);
+  border-color: var(--accent-dark);
+}
+
 .toolbar-divider {
   width: 1px;
   height: 26px;
@@ -1630,10 +1648,12 @@ input, button, select, textarea { font-family: inherit; }
     <!-- Toolbar -->
     <div class="toolbar" id="toolbar" role="toolbar" aria-label="Drawing tools">
 
-      <button class="tool-btn" data-tool="select" type="button" title="Select &amp; move (V) — drag a box round several things, or Shift+click to add one. Ctrl+A selects all.">
-        <svg viewBox="0 0 24 24"><path d="M4 3l7 17 2.6-6.4L20 11z"/><path d="M13.5 14.5l6 6" stroke-dasharray="2 2"/></svg>
+      <button class="tool-btn tool-select" data-tool="select" type="button" title="Select &amp; move (V) — click a shape, drag a box round several, or Shift+click to add one. Ctrl+A selects all. Shift+drag keeps to one direction; Ctrl+drag duplicates.">
+        <svg viewBox="0 0 24 24"><path d="M4 3l7 17 2.6-6.4L20 11z" fill="currentColor"/><path d="M14 15l6.5 6.5" stroke-dasharray="2 2"/></svg>
         <span class="tool-label">Select</span>
       </button>
+
+      <span class="toolbar-divider" aria-hidden="true"></span>
 
       <button class="tool-btn active" data-tool="bar" type="button" title="Draw a bar — click and drag (B)">
         <svg viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="8" rx="1"/></svg>
@@ -4904,7 +4924,7 @@ function clearCanvas(skipConfirm) {
 function updateCanvasHint() {
   var hints = {
     bar: 'Click and drag to draw a bar',
-    select: 'Drag a box round several things to select them · Shift+click adds one · Ctrl+A selects all · then drag, Ctrl+C/V, Ctrl+D or Delete the whole group',
+    select: 'Click a shape, or drag a box round several · Shift+click adds one · Ctrl+A selects all · drag to move (hold Shift to keep it straight, Ctrl to duplicate) · Ctrl+C/V, Ctrl+D, Delete',
     split: 'Click a bar to split it into equal units',
     shade: 'Click a unit to shade or unshade it',
     label: 'Click anywhere, type your label, then press Enter — use "?" for the unknown',
@@ -4919,7 +4939,7 @@ function updateCanvasHint() {
   if (appState.elements.length === 0 && appState.activeTool === 'bar') {
     canvasHint.textContent = 'Click and drag to draw your first bar';
   } else if (appState.selectedIds.length > 1) {
-    canvasHint.textContent = appState.selectedIds.length + ' selected — drag to move them together · Ctrl+C/V copy · Ctrl+D duplicate · Delete removes them';
+    canvasHint.textContent = appState.selectedIds.length + ' selected — drag to move them together (Shift keeps it straight, Ctrl duplicates) · Ctrl+C/V · Ctrl+D · Delete';
   } else {
     canvasHint.textContent = hints[appState.activeTool] || '';
   }
@@ -5039,33 +5059,42 @@ canvasSvg.addEventListener('pointerdown', function (event) {
       };
     } else {
       var hit = hitTest(event.target);
-      // Shift+click adds to (or removes from) the selection
+      // Shift adds to (or removes from) the selection — but only decides
+      // that on RELEASE, so it never swallows a drag. Shift+drag still
+      // constrains the move to one axis, and Ctrl+Shift+drag still
+      // duplicates along that axis.
       var additive = event.shiftKey;
       if (hit) {
+        var wasSelected = isSelected(hit.id);
+
         if (additive) {
-          // Toggle this element in the group; no drag starts on a
-          // shift-click, so a mis-aimed toggle can't drag the group.
           lastSelectClick = { id: null, time: 0 };
-          toggleInSelection(hit.id);
-          renderSelection();
-          return;
+          // Bring it into the group straight away so a shift+drag moves
+          // it along with everything else.
+          if (!wasSelected) { setSelection(appState.selectedIds.concat([hit.id])); }
+        } else {
+          // Second click on the same element within the double-click
+          // window opens its text editor (PowerPoint behaviour)
+          if (lastSelectClick.id === hit.id && event.timeStamp - lastSelectClick.time < DOUBLE_CLICK_MS) {
+            lastSelectClick = { id: null, time: 0 };
+            setSelection([hit.id]);
+            renderSelection();
+            beginTextEdit(hit, point);
+            return;
+          }
+          lastSelectClick = { id: hit.id, time: event.timeStamp };
+          // Clicking inside an existing multi-selection keeps the group so
+          // the whole group can be dragged; clicking outside it starts over.
+          if (!wasSelected) { setSelection([hit.id]); }
         }
-        // Second click on the same element within the double-click
-        // window opens its text editor (PowerPoint behaviour)
-        if (lastSelectClick.id === hit.id && event.timeStamp - lastSelectClick.time < DOUBLE_CLICK_MS) {
-          lastSelectClick = { id: null, time: 0 };
-          setSelection([hit.id]);
-          renderSelection();
-          beginTextEdit(hit, point);
-          return;
-        }
-        lastSelectClick = { id: hit.id, time: event.timeStamp };
-        // Clicking inside an existing multi-selection keeps the group so
-        // the whole group can be dragged; clicking outside it starts over.
-        if (!isSelected(hit.id)) { setSelection([hit.id]); }
+
         pointerSession = {
           mode: 'move',
           clickedId: hit.id,
+          additive: additive,
+          // Shift-clicking something already in the group takes it back
+          // out — but only if the pointer never actually moved.
+          toggleOffOnClick: additive && wasSelected,
           elements: selectedElements(),
           startX: point.x, startY: point.y,
           originals: selectedElements().map(function (el) { return JSON.stringify(el); }),
@@ -5332,11 +5361,17 @@ canvasSvg.addEventListener('pointerup', function (event) {
       setSelection(appState.selectedIds);   // re-point at the fresh objects
       renderAllElements();
     }
-  } else if (pointerSession.mode === 'move' && !pointerSession.moved &&
-             pointerSession.elements.length > 1) {
-    // A click without a drag inside a group narrows the selection down
-    // to just that one element, PowerPoint-style.
-    setSelection([pointerSession.clickedId]);
+  } else if (pointerSession.mode === 'move' && !pointerSession.moved) {
+    // Nothing was dragged, so this was a plain click. Decide what it
+    // meant for the selection now that we know no drag followed.
+    if (pointerSession.toggleOffOnClick) {
+      // Shift+click on something already in the group takes it out
+      toggleInSelection(pointerSession.clickedId);
+    } else if (!pointerSession.additive && pointerSession.elements.length > 1) {
+      // A plain click inside a group narrows down to that one element,
+      // PowerPoint-style. Shift+clicks are excluded — they add, not narrow.
+      setSelection([pointerSession.clickedId]);
+    }
     renderSelection();
     updateCanvasHint();
   } else if (pointerSession.mode === 'resize' && pointerSession.resized) {
@@ -5369,30 +5404,41 @@ function hitTest(domTarget) {
 }
 
 function applyMove(element, original, dx, dy, exact) {
-  // exact: skip grid snapping, used by fine keyboard nudges
-  var fit = exact ? function (v) { return v; } : snap;
+  /* exact: skip grid snapping, used by fine keyboard nudges.
+
+     An axis with a ZERO delta is left exactly as it was rather than
+     being snapped. That keeps a promise the interface makes in three
+     places: a Shift-constrained drag must hold the other axis
+     perfectly still, an arrow-key nudge must move on one axis only,
+     and pulling a stray element back on-canvas must not shove it
+     sideways as well. Without this an element sitting off-grid — after
+     a 1px Ctrl+arrow nudge — would jump up to half a grid step on the
+     axis it was supposed to be locked to. */
+  var snapX = exact || dx === 0 ? function (v) { return v; } : snap;
+  var snapY = exact || dy === 0 ? function (v) { return v; } : snap;
+
   if (element.type === 'bar' || element.type === 'label') {
-    element.x = fit(original.x + dx);
-    element.y = fit(original.y + dy);
+    element.x = snapX(original.x + dx);
+    element.y = snapY(original.y + dy);
   } else if (element.type === 'brace') {
     if (element.vertical) {
-      element.x = fit(original.x + dx);
-      element.y1 = fit(original.y1 + dy);
-      element.y2 = fit(original.y2 + dy);
+      element.x = snapX(original.x + dx);
+      element.y1 = snapY(original.y1 + dy);
+      element.y2 = snapY(original.y2 + dy);
     } else {
-      element.x1 = fit(original.x1 + dx);
-      element.x2 = fit(original.x2 + dx);
-      element.y = fit(original.y + dy);
+      element.x1 = snapX(original.x1 + dx);
+      element.x2 = snapX(original.x2 + dx);
+      element.y = snapY(original.y + dy);
     }
   } else if (element.type === 'arrow') {
     element.x1 = original.x1 + dx; element.y1 = original.y1 + dy;
     element.x2 = original.x2 + dx; element.y2 = original.y2 + dy;
   } else if (element.type === 'dotted' || element.type === 'align') {
     // Snapped, so a guide line dragged sideways stays aligned to bars
-    element.x1 = fit(original.x1 + dx); element.y1 = fit(original.y1 + dy);
-    element.x2 = fit(original.x2 + dx); element.y2 = fit(original.y2 + dy);
+    element.x1 = snapX(original.x1 + dx); element.y1 = snapY(original.y1 + dy);
+    element.x2 = snapX(original.x2 + dx); element.y2 = snapY(original.y2 + dy);
   } else if (element.type === 'divider') {
-    element.y = fit(original.y + dy);
+    element.y = snapY(original.y + dy);
   } else if (element.type === 'pen') {
     element.points = original.points.map(function (pt) {
       return { x: pt.x + dx, y: pt.y + dy };
