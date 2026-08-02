@@ -2466,7 +2466,9 @@ function generateFraction() {
    Papers currently loaded:
    - ACS (Junior) 2025 End-of-Year — Section C problem sums (Q26–30)
    - Ai Tong 2025 End-of-Year — Section C problem sums (Q22–26)
-   - ACS (Primary) 2025 End-of-Year — Section C problem sums (Q21–25) */
+   - ACS (Primary) 2025 End-of-Year — Section C problem sums (Q21–25)
+   - Henry Park 2025 End-of-Year — Section C problem sums (Q27–30)
+   - Maha Bodhi 2025 End-of-Year — Section C problem sums (Q21–25) */
 var P3_QUESTIONS = [
   {
     exam: { paper: 'ACS (Junior) 2025', section: 'C', qnum: 26, marks: 3 },
@@ -2837,6 +2839,222 @@ var P3_QUESTIONS = [
       '(b) Length of wire = perimeter = 13 + 5 + 13 + 5 = 36 cm',
       '(b) Side of square = 36 ÷ 4 = 9 cm',
       '(b) Area of square = 9 × 9 = 81 cm²'
+    ]
+  },
+  {
+    exam: { paper: 'Henry Park 2025', section: 'C', qnum: 27, marks: 4 },
+    text: 'Mr Lim made 325 mℓ of apple juice in the morning. He then made 650 mℓ of apple juice in the afternoon. (a) How much apple juice did he make in total? (b) All the apple juice was poured into 1 jug and 1 bottle without spilling. Both the jug and the bottle were filled completely. The jug was filled with 4 times as much apple juice as the bottle. How much more apple juice was there in the jug than in the bottle?',
+    answerStatement: '(a) 975 mℓ in total. (b) There was 585 mℓ more apple juice in the jug than in the bottle.',
+    expectedModel:
+      'Part (a): 325 + 650 = 975 mℓ. ' +
+      'Part (b): TWO bars with the SAME unit size — the bottle is 1 unit and the jug is 4 units, so 5 units = 975 mℓ and 1 unit = 195 mℓ. ' +
+      'The question asks HOW MUCH MORE, so the answer is the DIFFERENCE of 3 units = 585 mℓ (jug 780 mℓ − bottle 195 mℓ). ' +
+      'Stopping at the jug’s amount of 780 mℓ answers a different question and is a marking error. ' +
+      'The difference should be braced and marked with "?" in the model.',
+    workedSteps: [
+      '(a) 325 + 650 = 975 mℓ',
+      '(b) Bottle = 1 unit, jug = 4 units, so 5 units = 975 mℓ',
+      '(b) 1 unit = 975 ÷ 5 = 195 mℓ (the bottle); jug = 4 × 195 = 780 mℓ',
+      '(b) Difference = 780 − 195 = 585 mℓ (or 3 units × 195)'
+    ],
+    reference: [
+      refText({ x: 118, y: 68, text: 'Bottle', anchor: 'end', bold: true }),
+      refBar({ x: 130, y: 45, units: 1, unitWidth: 124 }),
+      refText({ x: 192, y: 72, text: '195', size: 13, anchor: 'middle' }),
+      refText({ x: 118, y: 148, text: 'Jug', anchor: 'end', bold: true }),
+      refBar({ x: 130, y: 125, units: 4, unitWidth: 124, color: '#BBDEFB' }),
+      refBraceH({ x1: 254, x2: 626, y: 171, text: '? = 3 units', below: true }),
+      refBraceSide({ x: 650, y1: 45, y2: 171, text: '975 mℓ' }),
+      refText({ x: 130, y: 250, text: '(a) 325 + 650 = 975    (b) 1 unit = 195  →  ? = 3 × 195 = 585 mℓ', size: 15, bold: true, color: '#2E7D32' })
+    ]
+  },
+  {
+    exam: { paper: 'Henry Park 2025', section: 'C', qnum: 28, marks: 3 },
+    text: 'Mr Lim needs 1250 cupcakes for a carnival. He has 377 cupcakes. Cupcakes are sold in boxes of 7. What is the least number of boxes of cupcakes that he needs to buy for the carnival?',
+    answerStatement: 'Mr Lim needs to buy at least 125 boxes of cupcakes.',
+    expectedModel:
+      'First find how many more cupcakes are needed: 1250 − 377 = 873. ' +
+      'Then divide into boxes of 7: 873 ÷ 7 = 124 remainder 5. ' +
+      'Because 124 boxes leave him 5 cupcakes short, he must buy ONE more box, so the answer is 125 boxes. ' +
+      'Answering 124 (ignoring the remainder) is a marking error — the question asks for the LEAST number of boxes that is enough. ' +
+      'A bar of 1250 split into a "has 377" part and a "needs ?" part is a correct model for the first step.',
+    workedSteps: [
+      'Cupcakes still needed: 1250 − 377 = 873',
+      '873 ÷ 7 = 124 remainder 5',
+      '124 boxes are 5 cupcakes short, so he needs 124 + 1 = 125 boxes'
+    ],
+    reference: [
+      refText({ x: 118, y: 128, text: 'Cupcakes', anchor: 'end', bold: true }),
+      refBar({ x: 130, y: 105, units: 1, unitWidth: 187, color: '#C8E6C9' }),
+      refBar({ x: 317, y: 105, units: 1, unitWidth: 433 }),
+      refText({ x: 223, y: 132, text: 'has 377', size: 13, anchor: 'middle' }),
+      refText({ x: 533, y: 132, text: 'needs to buy = 873', size: 14, anchor: 'middle', bold: true }),
+      refBraceH({ x1: 130, x2: 750, y: 151, text: '1250 needed', below: true }),
+      refText({ x: 130, y: 240, text: '873 ÷ 7 = 124 R 5  →  5 left over, so buy 125 boxes', size: 15, bold: true, color: '#2E7D32' })
+    ]
+  },
+  {
+    exam: { paper: 'Henry Park 2025', section: 'C', qnum: 29, marks: 3 },
+    text: 'Mr Lim had 260 more stamps than Mr Ang at first. After he gave away 100 stamps, he had twice as many stamps as Mr Ang. How many stamps did Mr Lim have at first?',
+    answerStatement: 'Mr Lim had 420 stamps at first.',
+    expectedModel:
+      'Mr Ang’s stamps never change, so his bar is 1 unit throughout. ' +
+      'At first Mr Lim = 1 unit + 260. After giving away 100 he has 1 unit + 160, and this equals 2 units. ' +
+      'So 1 unit = 260 − 100 = 160, which is Mr Ang’s amount. ' +
+      'Mr Lim at first = 160 + 260 = 420. ' +
+      'The model must show the SAME unit size in both bars and mark the 100 given away (crossed out or as a separate part).',
+    workedSteps: [
+      'Mr Ang stays the same, so let Mr Ang be 1 unit',
+      'After giving 100 away: Mr Lim = 2 units, and 2 units − 1 unit = 260 − 100',
+      '1 unit = 260 − 100 = 160 (Mr Ang)',
+      'Mr Lim at first = 160 + 260 = 420'
+    ],
+    reference: [
+      refText({ x: 20, y: 30, text: 'After giving away 100…', size: 13, bold: true, color: '#8A8A8A' }),
+      refText({ x: 118, y: 88, text: 'Mr Ang', anchor: 'end', bold: true }),
+      refBar({ x: 130, y: 65, units: 1, unitWidth: 180 }),
+      refText({ x: 220, y: 92, text: '1 unit', size: 13, anchor: 'middle' }),
+      refText({ x: 118, y: 168, text: 'Mr Lim', anchor: 'end', bold: true }),
+      refBar({ x: 130, y: 145, units: 2, unitWidth: 180, color: '#BBDEFB' }),
+      refBraceH({ x1: 310, x2: 490, y: 191, text: '260 − 100 = 160', below: true }),
+      refText({ x: 130, y: 262, text: '1 unit = 160  →  Mr Lim at first = 160 + 260 = 420', size: 15, bold: true, color: '#2E7D32' })
+    ]
+  },
+  {
+    exam: { paper: 'Henry Park 2025', section: 'C', qnum: 30, marks: 3 },
+    text: 'Trees are planted at an equal distance apart along a road. The distance between the 1st tree and the 4th tree is 24 m. Find the distance between the 3rd tree and the 15th tree.',
+    answerStatement: 'The distance between the 3rd tree and the 15th tree is 96 m.',
+    expectedModel:
+      'This is a gaps problem: count GAPS, not trees. ' +
+      'From the 1st tree to the 4th tree there are 4 − 1 = 3 gaps, so one gap = 24 ÷ 3 = 8 m. ' +
+      'From the 3rd tree to the 15th tree there are 15 − 3 = 12 gaps, so the distance is 12 × 8 = 96 m. ' +
+      'Counting 4 gaps for the first stretch or 13 gaps for the second (counting trees instead of gaps) is a marking error.',
+    workedSteps: [
+      '1st to 4th tree = 3 gaps, so 1 gap = 24 ÷ 3 = 8 m',
+      '3rd to 15th tree = 15 − 3 = 12 gaps',
+      'Distance = 12 × 8 = 96 m'
+    ]
+  },
+  {
+    exam: { paper: 'Maha Bodhi 2025', section: 'C', qnum: 21, marks: 3 },
+    text: 'Siti received $36.40 from her father and $23.80 from her mother. She bought a pair of shoes and had $18.20 left. How much did she pay for the pair of shoes?',
+    answerStatement: 'Siti paid $42.00 for the pair of shoes.',
+    expectedModel:
+      'First find how much Siti received altogether: $36.40 + $23.80 = $60.20. ' +
+      'Then subtract what she had left: $60.20 − $18.20 = $42.00. ' +
+      'A part–whole bar whose whole is $60.20, split into a "shoes ?" part and a "left $18.20" part, is a correct model. ' +
+      'Money answers should be written to two decimal places.',
+    workedSteps: [
+      'Total received: $36.40 + $23.80 = $60.20',
+      'Cost of shoes: $60.20 − $18.20 = $42.00'
+    ],
+    reference: [
+      refText({ x: 118, y: 128, text: 'Siti', anchor: 'end', bold: true }),
+      refBar({ x: 130, y: 105, units: 1, unitWidth: 432, color: '#BBDEFB' }),
+      refBar({ x: 562, y: 105, units: 1, unitWidth: 188 }),
+      refText({ x: 346, y: 132, text: 'shoes = ?', size: 14, anchor: 'middle', bold: true }),
+      refText({ x: 656, y: 132, text: 'left $18.20', size: 13, anchor: 'middle' }),
+      refBraceH({ x1: 130, x2: 750, y: 151, text: '$36.40 + $23.80 = $60.20', below: true }),
+      refText({ x: 130, y: 240, text: '$60.20 − $18.20 = $42.00', size: 15, bold: true, color: '#2E7D32' })
+    ]
+  },
+  {
+    exam: { paper: 'Maha Bodhi 2025', section: 'C', qnum: 22, marks: 3 },
+    text: '260 pupils were divided equally into groups of 4. 2 pupils from each group were chosen as group leaders. How many group leaders were there altogether?',
+    answerStatement: 'There were 130 group leaders altogether.',
+    expectedModel:
+      'First find the number of GROUPS: 260 ÷ 4 = 65 groups. ' +
+      'Each group gives 2 leaders, so 65 × 2 = 130 leaders. ' +
+      'Dividing 260 by 2, or multiplying 260 by 2, skips the group step and is a marking error. ' +
+      'A bar of 260 split into 65 equal groups of 4, with 2 of every 4 marked as leaders, is a correct model.',
+    workedSteps: [
+      'Number of groups: 260 ÷ 4 = 65',
+      'Leaders: 65 × 2 = 130'
+    ],
+    reference: [
+      refText({ x: 118, y: 128, text: 'Pupils', anchor: 'end', bold: true }),
+      refBar({ x: 130, y: 105, units: 4, unitWidth: 75, shaded: [0, 1] }),
+      refText({ x: 205, y: 92, text: '2 leaders', size: 12, anchor: 'middle', color: '#8A8A8A' }),
+      refBraceH({ x1: 130, x2: 430, y: 151, text: '1 group of 4', below: true }),
+      refText({ x: 470, y: 135, text: '… 65 groups in all', size: 14, anchor: 'start', color: '#8A8A8A' }),
+      refText({ x: 130, y: 240, text: '260 ÷ 4 = 65 groups  →  65 × 2 = 130 leaders', size: 15, bold: true, color: '#2E7D32' })
+    ]
+  },
+  {
+    exam: { paper: 'Maha Bodhi 2025', section: 'C', qnum: 23, marks: 3 },
+    text: 'Pupils in the Science Club collected 344 bottles for a recycling project. After packing some bottles equally into 8 bags, 16 bottles were left. How many bottles were there in each bag?',
+    answerStatement: 'There were 41 bottles in each bag.',
+    expectedModel:
+      'Take away the leftover bottles FIRST: 344 − 16 = 328 bottles were packed. ' +
+      'Then divide equally into 8 bags: 328 ÷ 8 = 41. ' +
+      'Dividing 344 by 8 before removing the 16 left over is a marking error. ' +
+      'A bar of 344 split into 8 equal units plus a small "left 16" part, with "?" on one unit, is a correct model.',
+    workedSteps: [
+      'Bottles packed: 344 − 16 = 328',
+      'Bottles in each bag: 328 ÷ 8 = 41'
+    ],
+    reference: [
+      refText({ x: 118, y: 128, text: 'Bottles', anchor: 'end', bold: true }),
+      refBar({ x: 130, y: 105, units: 8, unitWidth: 71 }),
+      refText({ x: 165, y: 132, text: '?', size: 16, anchor: 'middle', bold: true }),
+      refBar({ x: 698, y: 105, units: 1, unitWidth: 52, color: '#FFCDD2' }),
+      refText({ x: 724, y: 96, text: 'left 16', size: 11, anchor: 'middle', color: '#8A8A8A' }),
+      refBraceH({ x1: 130, x2: 698, y: 151, text: '328 packed into 8 bags', below: true }),
+      refBraceH({ x1: 130, x2: 750, y: 105, text: '344', below: false }),
+      refText({ x: 130, y: 250, text: '344 − 16 = 328  →  328 ÷ 8 = 41 bottles per bag', size: 15, bold: true, color: '#2E7D32' })
+    ]
+  },
+  {
+    exam: { paper: 'Maha Bodhi 2025', section: 'C', qnum: 24, marks: 3 },
+    text: 'Mrs Wong used some flour to bake cookies and muffins. She used 1200 g to bake the muffins. She used 560 g less flour to bake the cookies than muffins. How much flour did she use altogether?',
+    answerStatement: 'Mrs Wong used 1840 g of flour altogether.',
+    expectedModel:
+      'TWO bars. The muffins bar is 1200 g. The cookies bar is SHORTER by 560 g, so cookies = 1200 − 560 = 640 g. ' +
+      'The difference of 560 g must be marked between the two bars. ' +
+      'A brace over both bars carries the "?" for the total: 1200 + 640 = 1840 g. ' +
+      'Adding 560 g instead of subtracting it, or forgetting to add the two bars for the total, is a marking error.',
+    workedSteps: [
+      'Cookies: 1200 − 560 = 640 g',
+      'Altogether: 1200 + 640 = 1840 g'
+    ],
+    reference: [
+      refText({ x: 118, y: 68, text: 'Muffins', anchor: 'end', bold: true }),
+      refBar({ x: 130, y: 45, units: 1, unitWidth: 480, color: '#BBDEFB' }),
+      refText({ x: 370, y: 72, text: '1200 g', size: 14, anchor: 'middle' }),
+      refText({ x: 118, y: 148, text: 'Cookies', anchor: 'end', bold: true }),
+      refBar({ x: 130, y: 125, units: 1, unitWidth: 256 }),
+      refText({ x: 258, y: 152, text: '640 g', size: 14, anchor: 'middle' }),
+      refBraceH({ x1: 386, x2: 610, y: 171, text: '560 g less', below: true }),
+      refBraceSide({ x: 640, y1: 45, y2: 171, text: '? = 1840 g' }),
+      refText({ x: 130, y: 250, text: '1200 − 560 = 640  →  1200 + 640 = 1840 g', size: 15, bold: true, color: '#2E7D32' })
+    ]
+  },
+  {
+    exam: { paper: 'Maha Bodhi 2025', section: 'C', qnum: 25, marks: 4 },
+    text: 'Amelia had 325 marbles. 179 marbles were red and the rest were blue. (a) How many blue marbles did Amelia have? (b) Amelia’s mother gave her 208 more red marbles. How many red marbles did Amelia have in the end?',
+    answerStatement: '(a) Amelia had 146 blue marbles. (b) Amelia had 387 red marbles in the end.',
+    expectedModel:
+      'Part (a): a part–whole bar of 325 split into "red 179" and "blue ?" gives 325 − 179 = 146 blue marbles. ' +
+      'Part (b): only the RED marbles grow, so 179 + 208 = 387. ' +
+      'Part (b) starts from the original 179 red marbles, not from the blue marbles or the 325 total — using either is a marking error.',
+    workedSteps: [
+      '(a) Blue = 325 − 179 = 146',
+      '(b) Red in the end = 179 + 208 = 387'
+    ],
+    reference: [
+      refText({ x: 118, y: 68, text: 'At first', anchor: 'end', bold: true }),
+      refBar({ x: 130, y: 45, units: 1, unitWidth: 341, color: '#FFCDD2' }),
+      refBar({ x: 471, y: 45, units: 1, unitWidth: 279, color: '#BBDEFB' }),
+      refText({ x: 300, y: 72, text: 'red 179', size: 14, anchor: 'middle' }),
+      refText({ x: 610, y: 72, text: 'blue ?', size: 14, anchor: 'middle', bold: true }),
+      refBraceH({ x1: 130, x2: 750, y: 91, text: '325', below: true }),
+      refText({ x: 118, y: 188, text: 'Red in the end', anchor: 'end', bold: true }),
+      refBar({ x: 130, y: 165, units: 1, unitWidth: 341, color: '#FFCDD2' }),
+      refBar({ x: 471, y: 165, units: 1, unitWidth: 198, color: '#C8E6C9' }),
+      refText({ x: 300, y: 192, text: '179', size: 14, anchor: 'middle' }),
+      refText({ x: 570, y: 192, text: 'more 208', size: 13, anchor: 'middle' }),
+      refBraceH({ x1: 130, x2: 669, y: 211, text: '?', below: true }),
+      refText({ x: 130, y: 272, text: '(a) 325 − 179 = 146 blue    (b) 179 + 208 = 387 red', size: 15, bold: true, color: '#2E7D32' })
     ]
   }
 ];
